@@ -1,533 +1,695 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La FAQ propulsée par Notion — Hiway</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La FAQ propulsée par Notion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Patrick+Hand&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#ffffff; --panel:#f6f5f0; --panel-2:#f1efe8;
-  --ink:#26251f; --sec:#6b6a63; --mut:#9a988f; --bd:rgba(30,28,20,.10);
-  --accent:#1d9e75; --accent-d:#0f6e56; --accent-l:#e7f4ee; --accent-bd:rgba(29,158,117,.35);
-  --red:#b8503f; --red-l:#f7ece7;
-  --dark:#262521; --dark-2:#302f2a; --dark-bd:rgba(255,255,255,.09);
-  --dark-sec:#b7b5ab; --dark-accent:#5cc79f; --dark-accent-bg:#1c3b31;
-  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%}
-body{font-family:var(--sans); background:#e9e7df; overflow:hidden; -webkit-font-smoothing:antialiased; color:var(--ink)}
-.viewport{position:fixed; inset:0; display:flex; align-items:center; justify-content:center}
-.stage{width:1280px; height:720px; position:relative; border-radius:20px; overflow:hidden;
-  box-shadow:0 24px 70px rgba(0,0,0,.30); background:#000; transform-origin:center}
+:root{--ink:#26251f;--paper:#f7f6f1;--accent:#1d9e75;--red:#b8503f;--muted:#6b6a63;--line:#e2e0d6}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#1c1713;color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+.deck{position:absolute;inset:0;margin:auto;width:min(100vw,177.78vh);height:min(56.25vw,100vh);container-type:size;background:var(--paper);overflow:hidden}
+.slide{position:absolute;inset:0;display:grid;grid-template-columns:38% 1fr;gap:4cqw;align-items:center;padding:4.5cqw 5cqw 7cqw;opacity:0;visibility:hidden;transition:opacity .35s}
+.slide.active{opacity:1;visibility:visible}
+.kicker{font-family:'Patrick Hand',cursive;font-size:1.9cqw;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8cqw}
+h1{font-size:4.4cqw;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+h2{font-size:3cqw;line-height:1.1;font-weight:800;letter-spacing:-.015em}
+p,li,dd{font-size:1.55cqw;line-height:1.45}
+.lead{margin-top:1.6cqw;color:var(--muted);font-size:1.75cqw}
+.byline{margin-top:1.2cqw;font-size:1cqw;color:var(--muted);opacity:.8}
+.byline a{color:inherit}
+.hint{margin-top:2.4cqw;font-family:'Patrick Hand',cursive;font-size:1.5cqw;color:var(--muted)}
+ul{padding-left:1.3em;display:grid;gap:.9cqw;margin-top:1.8cqw}
+li::marker{color:var(--accent)}
+b{font-weight:800}
+code{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:.88em;background:#ebe8de;padding:.05em .3em;border-radius:.3em}
+dl{margin-top:1.6cqw}
+dt{font-weight:800;font-size:1.65cqw;display:flex;align-items:center;gap:.6cqw}
+dt .tag{font-size:1.15cqw;font-weight:800;color:#fff;background:var(--accent);min-width:2.2cqw;text-align:center;padding:.15cqw .7cqw;border-radius:99px}
+dd{margin:.2cqw 0 1.1cqw;color:var(--muted)}
+ol.steps{list-style:none;padding:0;margin-top:1.6cqw;display:grid;gap:.7cqw;counter-reset:s}
+ol.steps li{counter-increment:s;display:flex;gap:.9cqw;align-items:center;opacity:.4;transition:opacity .2s,color .2s}
+ol.steps li::before{content:counter(s);flex:none;width:2.3cqw;height:2.3cqw;border-radius:50%;display:grid;place-items:center;font-size:1.2cqw;font-weight:800;background:var(--line)}
+ol.steps li.done{opacity:.75}
+ol.steps li.on{opacity:1;color:var(--accent);font-weight:700}
+ol.steps li.on::before{background:var(--accent);color:#fff}
 
-.slide{position:absolute; inset:0; padding:60px 72px; display:flex; flex-direction:column;
-  opacity:0; visibility:hidden; transform:translateY(12px); transition:opacity .4s ease, transform .4s ease}
-.slide.active{opacity:1; visibility:visible; transform:none}
-.slide.light{background:var(--paper)}
-.slide.dark{background:var(--dark); color:#fff}
+/* bobine stop-motion */
+.reel{position:relative;background:#151210;padding:2cqw 1.2cqw 0;border-radius:1cqw;box-shadow:0 1.2cqw 3cqw rgba(40,20,0,.28)}
+.reel::before,.reel::after{content:"";position:absolute;left:1.2cqw;right:1.2cqw;height:.75cqw;background:repeating-linear-gradient(90deg,#3b322a 0 1cqw,transparent 1cqw 2.2cqw);border-radius:2px}
+.reel::before{top:.62cqw}.reel::after{bottom:.62cqw}
+.reel canvas{display:block;width:100%;aspect-ratio:16/9;border-radius:.3cqw;cursor:pointer;background:#efe4cf}
+.reel figcaption{display:flex;align-items:center;gap:.9cqw;color:#e9dcc3;font-family:'Patrick Hand',cursive;font-size:1.35cqw;padding:.7cqw 0 2cqw}
+.reel button{background:none;border:1px solid #6b5a48;color:#e9dcc3;border-radius:99px;width:2.5cqw;height:2.5cqw;font-size:1.1cqw;cursor:pointer;display:grid;place-items:center}
+.reel button:hover{border-color:#e9dcc3}
+.reel .fc{min-width:5.5cqw;text-align:right;font-variant-numeric:tabular-nums}
+.seek{flex:1;-webkit-appearance:none;appearance:none;height:.45cqw;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,0%),#4a3f36 var(--p,0%))}
+.seek::-webkit-slider-thumb{-webkit-appearance:none;width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
+.seek::-moz-range-thumb{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
 
-.pnum{position:absolute; top:34px; right:40px; font-size:12px; letter-spacing:.14em; font-weight:500; z-index:2}
-.light .pnum{color:var(--mut)} .dark .pnum{color:#66655d}
+/* conclusion */
+blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:1.9cqw;line-height:1.3;border-left:.5cqw solid var(--accent);padding-left:1.4cqw}
+/* avant / maintenant */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;margin-top:1.6cqw}
+.compare>div{border-radius:1cqw;padding:1.2cqw 1.3cqw}
+.compare .before{background:#f7ece7}.compare .now{background:#e7f4ee}
+.compare h3{font-size:1.15cqw;letter-spacing:.14em;text-transform:uppercase}
+.compare .before h3{color:var(--red)}.compare .now h3{color:#0f6e56}
+.compare ul{list-style:none;padding:0;gap:.6cqw;margin-top:.8cqw}
+.compare li{font-size:1.25cqw;line-height:1.35;padding-left:1.3em;text-indent:-1.3em}
+.compare .before li::before{content:"✕  ";color:var(--red);font-weight:800}
+.compare .now li::before{content:"✓  ";color:var(--accent);font-weight:800}
 
-.kick{font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:14px}
-.dark .kick{color:var(--dark-accent)}
-.h{font-size:34px; font-weight:500; line-height:1.12; letter-spacing:-.01em; color:var(--ink)}
-.dark .h{color:#fff}
-.h.big{font-size:58px; line-height:1.05; letter-spacing:-.02em}
-.sub{font-size:18px; line-height:1.5; color:var(--sec); margin-top:14px; font-weight:400}
-.dark .sub{color:var(--dark-sec)}
 
-.head{flex:none}
-.body{flex:1; display:flex; flex-direction:column; min-height:0; margin-top:34px}
-
-/* rows fill vertical space, content vertically centered, real padding */
-.rows{display:flex; flex-direction:column; gap:14px; flex:1}
-.row{display:flex; align-items:center; gap:20px; padding:22px 26px; border-radius:14px; flex:1;
-  background:var(--panel); border:1px solid var(--bd)}
-.row.d{background:var(--dark-2); border:1px solid var(--dark-bd)}
-.rtext{flex:1; min-width:0}
-
-/* two-column: intro + rows */
-.split{display:grid; grid-template-columns:.82fr 1.18fr; gap:52px; flex:1; min-height:0; align-items:center}
-.intro{display:flex; flex-direction:column; justify-content:center}
-.intro .h{font-size:32px}
-
-/* horizontal flow */
-.flow{display:flex; align-items:stretch; flex:1; min-height:0; gap:0}
-.flow .card{flex:1}
-.arrow{display:flex; align-items:center; justify-content:center; width:52px; color:var(--accent)}
-.arrow svg{width:26px; height:26px}
-
-/* cards */
-.card{background:var(--panel); border:1px solid var(--bd); border-radius:14px; padding:28px;
-  display:flex; flex-direction:column; justify-content:center}
-.card.d{background:var(--dark-2); border:1px solid var(--dark-bd)}
-.card.tl{background:var(--accent-l); border:1px solid var(--accent-bd)}
-
-.chip{width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  flex:none; background:var(--accent-l); color:var(--accent-d)}
-.chip svg{width:23px; height:23px}
-.chip.rd{background:var(--red-l); color:var(--red)}
-.chip.dk{background:var(--dark-accent-bg); color:var(--dark-accent)}
-.chip.num{font-size:20px; font-weight:500}
-
-.ct{font-size:19px; font-weight:500; color:var(--ink); margin-bottom:5px}
-.dark .ct{color:#fff}
-.cd{font-size:15px; line-height:1.5; color:var(--sec); font-weight:400}
-.dark .cd{color:var(--dark-sec)}
-.stepn{font-size:12px; font-weight:500; letter-spacing:.13em; color:var(--accent); margin:14px 0 6px}
-
-.statnum{width:92px; flex:none; text-align:center; color:var(--accent)}
-.statnum b{font-size:44px; font-weight:500; line-height:1; display:block}
-.statnum span{font-size:12px; color:var(--mut); font-weight:500; display:block; margin-top:6px; letter-spacing:.02em}
-
-/* comparison columns */
-.cols{display:grid; grid-template-columns:1fr 1fr; gap:20px; flex:1; min-height:0}
-.col{padding:30px 32px; justify-content:center}
-.colh{font-size:13px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px}
-.li{display:flex; align-items:center; gap:13px; font-size:17px; color:var(--ink); padding:13px 0; border-top:1px solid var(--bd)}
-.li:first-of-type{border-top:none}
-.col.tl .li{border-top:1px solid var(--accent-bd)}
-.li svg{width:19px; height:19px; flex:none}
-
-/* summary 2x2 */
-.g2{display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; min-height:0}
-.g2 .card{justify-content:center; padding:26px 28px}
-.g2 .ct{display:flex; align-items:center; gap:10px}
-.g2 .ct svg{width:20px; height:20px; color:var(--dark-accent); flex:none}
-
-.tag{font-size:17px; color:var(--sec); margin-top:22px; flex:none; line-height:1.45}
-.tag b{font-weight:500; color:var(--ink)}
-.intro .tag{margin-top:22px}
-.dark .tag{color:var(--dark-sec)}
-.tag.hero{font-size:19px; color:var(--ink); font-weight:400; text-align:center}
-.tag.hero b{color:var(--ink)} .tag.hero .grn{color:var(--accent-d)}
-
-/* mini help bubbles under diagrams */
-.minis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; flex:none}
-.mini{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:12px;
-  background:var(--panel); border:1px solid var(--bd)}
-.mini .chip{width:38px; height:38px; border-radius:10px}
-.mini .chip svg{width:19px; height:19px}
-.mini .chip.num{font-size:16px}
-.mini .ct{font-size:15px; margin-bottom:2px}
-.mini .cd{font-size:13px; line-height:1.4}
-.diagwrap{flex:1; display:flex; align-items:center; justify-content:center; min-height:0; margin-bottom:18px}
-
-.foot{font-size:14px; color:var(--mut); flex:none}
-.brandrow{display:flex; align-items:center; gap:16px}
-.logo{width:52px; height:52px; border-radius:14px; background:var(--accent); color:#fff;
-  display:flex; align-items:center; justify-content:center; font-weight:500; font-size:26px}
-
-/* cover */
-.cover{display:grid; grid-template-columns:1.12fr .88fr; gap:44px; flex:1; align-items:center; min-height:0}
-.mock{background:var(--dark-2); border:1px solid var(--dark-bd); border-radius:18px; padding:30px}
-.mock .ln{display:flex; align-items:center; gap:14px; margin:16px 0}
-.mock .dot{width:11px; height:11px; border-radius:50%; background:#4a4a45; flex:none}
-.mock .dot.on{background:var(--dark-accent)}
-.mock .bar{height:10px; border-radius:5px; background:#3c3b36}
-.mock .bar.on{background:#57564f}
-.mock .pill{margin-top:22px; background:var(--dark-accent-bg); border:1px solid #2a5346; border-radius:10px;
-  padding:13px 16px; font-size:14px; color:var(--dark-accent); font-weight:500; display:flex; align-items:center; gap:9px}
-.mock .pill svg{width:17px; height:17px}
-
-/* controls */
-.bar-wrap{position:fixed; left:0; right:0; bottom:0; height:4px; background:rgba(0,0,0,.08)}
-.bar-fill{height:100%; background:var(--accent); width:0; transition:width .4s ease}
-.hint{position:fixed; bottom:15px; left:50%; transform:translateX(-50%); color:#a09e94; font-size:12px; display:flex; gap:14px}
-.hint kbd{background:#fff; border:1px solid #d9d7cd; border-radius:5px; padding:2px 7px; font-size:11px; color:#78766d}
-.dots{position:fixed; top:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:5}
-.dots i{width:7px; height:7px; border-radius:50%; background:#cbc9bf; cursor:pointer; transition:.2s}
-.dots i.on{background:var(--accent); width:20px; border-radius:4px}
-.langbtn{position:fixed;top:10px;right:14px;z-index:6;font:500 12px var(--sans);letter-spacing:.08em;background:#fff;border:1px solid #d9d7cd;border-radius:99px;padding:6px 12px;color:#78766d;cursor:pointer}
-.langbtn:hover{color:var(--ink)}
-@media(max-width:700px){.hint{display:none}}
+/* nav */
+.nav{position:absolute;left:5cqw;right:5cqw;bottom:2.2cqw;display:flex;align-items:center;gap:1.4cqw;font-family:'Patrick Hand',cursive;font-size:1.4cqw;color:var(--muted)}
+.nav button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:2.6cqw;height:2.6cqw;font-size:1.3cqw;cursor:pointer}
+.nav button:hover{background:#ebe8de}
+/* volume : curseur vertical qui apparaît au survol du bouton son */
+.vol{position:relative;display:flex}
+.volpop{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding-bottom:.7cqw;display:none}
+.vol:hover .volpop,.vol:focus-within .volpop{display:block}
+.volbox{position:relative;width:2.8cqw;height:10cqw;background:#fffdf6;border:1px solid var(--line);border-radius:99px;box-shadow:0 .6cqw 1.6cqw rgba(40,20,0,.18)}
+#volume{position:absolute;left:50%;top:50%;width:7.6cqw;margin:0;transform:translate(-50%,-50%) rotate(-90deg);-webkit-appearance:none;appearance:none;height:.45cqw;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,60%),var(--line) var(--p,60%))}
+#volume::-webkit-slider-thumb{-webkit-appearance:none;width:1.3cqw;height:1.3cqw;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+#volume::-moz-range-thumb{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+.nav .lang{width:auto;padding:0 .9cqw;font-family:Inter,system-ui,sans-serif;font-size:1cqw;font-weight:800;letter-spacing:.05em}
+body.en .fr,body:not(.en) .en{display:none!important}
+.bar{flex:1;height:.35cqw;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
 </style>
 </head>
 <body>
-<div class="dots" id="dots"></div>
-<div class="viewport"><div class="stage" id="stage">
+<main class="deck">
 
-  <!-- 1 · COVER -->
-  <section class="slide light active">
-    <span class="pnum">01 / 07</span>
-    <div class="cover">
-      <div>
-        <div class="brandrow" style="margin-bottom:36px"><div class="logo">N</div><span class="kick" style="margin:0">Notion × Support</span></div>
-        <h1 class="h big">La FAQ propulsée<br>par Notion</h1>
-        <p class="sub" style="margin-top:24px">Des articles d'aide publiés directement dans l'app, sans coût de développement — rédigés avec l'IA, sur une base de connaissance partagée.</p>
-        <div class="foot" style="margin-top:40px">Hiway · Pascal Zhang · zhangpas@gmail.com · zhang-pascal.com · Juillet 2026</div>
-      </div>
-      <div class="mock">
-        <div class="ln"><span class="dot on"></span><span class="bar on" style="width:78%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:60%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:70%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:55%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:64%"></span></div>
-        <div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Publié · visible dans l'app</div>
-      </div>
+<section class="slide">
+  <div>
+    <p class="kicker">Notion × Support</p>
+    <h1>La FAQ propulsée par Notion</h1>
+    <p class="lead">Des articles d'aide publiés directement dans l'app, sans coût de développement, rédigés avec l'IA sur une base de connaissance partagée.</p>
+    <p class="hint">← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue</p>
+    <p class="byline">Hiway · Pascal Zhang · <a href="mailto:zhangpas@gmail.com">zhangpas@gmail.com</a> · <a href="https://zhang-pascal.com/">zhang-pascal.com</a> · Juillet 2026</p>
+  </div>
+  <figure class="reel"><canvas data-scene="cover"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Le point de départ</p>
+    <h2>Avant : un parcours du combattant</h2>
+    <p class="lead">Publier un article d'aide demandait du développement, deux équipes et des allers-retours, alors que le support rédigeait déjà tout dans Notion.</p>
+    <ul>
+      <li><b>Intégration = développement</b> : chaque article devait être recodé et déployé.</li>
+      <li><b>Sortie lente</b> : les articles attendaient un créneau produit.</li>
+      <li><b>Double saisie</b> : écrit dans Notion, puis re-transcrit côté produit.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="before"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">La solution</p>
+    <h2>Maintenant : Notion → l'app, directement</h2>
+    <ol class="steps">
+      <li><span><b>Rédaction</b> : le support écrit dans Notion, comme d'habitude.</span></li>
+      <li><span><b>Publication</b> : un statut « Publié » suffit. Pas de ticket, pas de déploiement.</span></li>
+      <li><span><b>Live</b> : l'article est servi depuis Notion, visible tout de suite dans l'app.</span></li>
+    </ol>
+    <p class="lead"><b>Résultat :</b> le coût de dev disparaît, et le flow du support ne change pas.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="now"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Ce que ça change</p>
+    <h2>Trois gains immédiats</h2>
+    <dl>
+      <dt><span class="tag">0</span> ligne de code</dt>
+      <dd>Publier un article ne mobilise plus l'équipe produit : le support est autonome.</dd>
+      <dt><span class="tag">↑</span> Sortie accélérée</dt>
+      <dd>Les articles paraissent dès qu'ils sont écrits, sans attendre un déploiement.</dd>
+      <dt><span class="tag">=</span> Même outil</dt>
+      <dd>Le support est déjà sur Notion : aucune nouvelle habitude à prendre.</dd>
+    </dl>
+  </div>
+  <figure class="reel"><canvas data-scene="wins"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Accéléré par l'IA</p>
+    <h2>Rédigé et publié avec Claude &amp; Codex</h2>
+    <ul>
+      <li><b>Rédaction assistée</b> : un prompt suffit pour un article structuré, prêt à lire.</li>
+      <li><b>Mise en forme automatique</b> : titres, callouts et liens, gérés par l'IA.</li>
+      <li><b>Publication directe</b> : créé et publié dans Notion, donc live dans l'app.</li>
+    </ul>
+    <p class="lead">Le support pilote, l'IA exécute. Notion reste la source unique de vérité.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="ai"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">L'effet de levier</p>
+    <h2>Une base de connaissance métier, partagée</h2>
+    <ul>
+      <li><b>Déjà adopté</b> : chaque équipe utilise Notion au quotidien.</li>
+      <li><b>Ouvert en lecture</b> : tout le monde dans l'entreprise peut consulter.</li>
+      <li><b>Édition protégée</b> : seuls les référents modifient le contenu.</li>
+    </ul>
+    <p class="lead"><b>Résultat :</b> une même source fiable, pour l'app et pour les équipes.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="kb"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">L'impact, en résumé</p>
+    <h2>Avant / Maintenant</h2>
+    <div class="compare">
+      <div class="before"><h3>Avant</h3><ul><li>Intégration développeur requise</li><li>Délai avant chaque publication</li><li>Double saisie support ↔ produit</li><li>Connaissance dispersée</li></ul></div>
+      <div class="now"><h3>Maintenant</h3><ul><li>Publication en autonomie, sans dev</li><li>Article live dès qu'il est écrit</li><li>Notion = source unique de vérité</li><li>Connaissance métier partagée</li></ul></div>
     </div>
-  </section>
+    <blockquote>Notion + IA = un support plus rapide, plus autonome, sur une connaissance métier partagée.</blockquote>
+  </div>
+  <figure class="reel"><canvas data-scene="impact"></canvas></figure>
+</section>
 
-  <!-- 2 · CONSTAT + WORKFLOW AVANT -->
-  <section class="slide light">
-    <span class="pnum">02 / 07</span>
-    <div class="head">
-      <p class="kick">Le point de départ</p>
-      <h2 class="h">Avant : un parcours du combattant</h2>
-      <p class="sub">Publier un article d'aide demandait du développement, deux équipes et des allers-retours — alors que le support rédigeait déjà tout dans Notion.</p>
-    </div>
-    <div class="body" style="margin-top:24px">
-      <div class="diagwrap">
-        <svg viewBox="0 0 1060 320" xmlns="http://www.w3.org/2000/svg" fill="none" style="width:100%;max-height:100%">
-  <defs>
-    <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M1,1.5 L8,5 L1,8.5" fill="none" stroke="#b8503f" stroke-width="1.6" stroke-linejoin="round"/>
-    </marker>
-  </defs>
-  <!-- Role labels -->
-  <text x="130" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="500" fill="#b8503f" letter-spacing=".14em">SUPPORT</text>
-  <text x="670" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="500" fill="#b8503f" letter-spacing=".14em">DÉVELOPPEUR</text>
-
-  <!-- Box 1: Rédige l'article -->
-  <rect x="30" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="130" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Rédige l'article</text>
-  <text x="130" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">dans Notion (brouillon)</text>
-
-  <!-- Arrow 1→2 -->
-  <line x1="235" y1="90" x2="278" y2="90" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 2: Transmet au dev -->
-  <rect x="290" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="390" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Transmet au dev</text>
-  <text x="390" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">ticket, Slack, email…</text>
-
-  <!-- Forward arrow 2→3 -->
-  <line x1="495" y1="78" x2="558" y2="78" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 3: Dev code -->
-  <rect x="570" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="670" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Code &amp; intègre</text>
-  <text x="670" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">dans le produit</text>
-
-  <!-- Return curve 3→2 (dashed) -->
-  <path d="M665,140 C665,206 395,206 395,140" stroke="#b8503f" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#ahr)"/>
-  <text x="530" y="216" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#b8503f" font-style="italic">⟳ allers-retours, corrections</text>
-
-  <!-- Arrow 3→4 -->
-  <line x1="775" y1="90" x2="828" y2="90" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 4: Publication -->
-  <rect x="840" y="44" width="190" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="935" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Publication</text>
-  <text x="935" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#b8503f" font-style="italic">(enfin…)</text>
-
-  <!-- Bottom: clock + label -->
-  <circle cx="440" cy="285" r="13" stroke="#b8503f" stroke-width="1.4" fill="none"/>
-  <path d="M440,276 L440,285 L447,289" stroke="#b8503f" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-  <text x="530" y="291" text-anchor="middle" font-family="Inter,sans-serif" font-size="17" font-weight="500" fill="#b8503f">Des jours de délai…</text>
-</svg>
-      </div>
-      <div class="minis">
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18 22 12 16 6"/><path d="M8 6 2 12 8 18"/></svg></div><div class="rtext"><div class="ct">Intégration = développement</div><div class="cd">Chaque article devait être recodé et déployé pour apparaître dans l'app.</div></div></div>
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="rtext"><div class="ct">Sortie lente</div><div class="cd">Les articles attendaient un créneau produit avant d'être publiés.</div></div></div>
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></div><div class="rtext"><div class="ct">Double saisie</div><div class="cd">Écrit dans Notion, puis re-transcrit côté produit. Deux fois le travail.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3 · SOLUTION + WORKFLOW APRÈS -->
-  <section class="slide light">
-    <span class="pnum">03 / 07</span>
-    <div class="head">
-      <p class="kick">La solution</p>
-      <h2 class="h">Maintenant : Notion → l'app, directement</h2>
-      <p class="sub">Le support rédige dans Notion comme d'habitude, change un statut — l'article est affiché tel quel dans l'app, zéro étape de développement.</p>
-    </div>
-    <div class="body" style="margin-top:24px">
-      <div class="diagwrap">
-        <svg viewBox="0 0 1060 250" xmlns="http://www.w3.org/2000/svg" fill="none" style="width:100%;max-height:100%">
-  <defs>
-    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M1,1.5 L8,5 L1,8.5" fill="none" stroke="#1d9e75" stroke-width="1.6" stroke-linejoin="round"/>
-    </marker>
-  </defs>
-
-  <!-- Box 1: Support rédige dans Notion -->
-  <rect x="70" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="1.5"/>
-  <text x="195" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Support rédige</text>
-  <text x="195" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">dans Notion</text>
-  <!-- Notion icon -->
-  <rect x="87" y="54" width="26" height="26" rx="5" fill="#1d9e75" opacity=".12"/>
-  <text x="100" y="73" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0f6e56">N</text>
-
-  <!-- Arrow 1→2 -->
-  <line x1="326" y1="88" x2="393" y2="88" stroke="#1d9e75" stroke-width="2" marker-end="url(#ahg)"/>
-
-  <!-- Box 2: Change le statut -->
-  <rect x="405" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="1.5"/>
-  <text x="530" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Change le statut</text>
-  <text x="530" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#0f6e56">→ Publié</text>
-  <!-- Toggle icon -->
-  <rect x="422" y="54" width="30" height="16" rx="8" fill="#1d9e75" opacity=".18"/>
-  <circle cx="445" cy="62" r="5.5" fill="#1d9e75" opacity=".7"/>
-
-  <!-- Arrow 2→3 -->
-  <line x1="661" y1="88" x2="728" y2="88" stroke="#1d9e75" stroke-width="2" marker-end="url(#ahg)"/>
-
-  <!-- Box 3: Article live -->
-  <rect x="740" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="2"/>
-  <text x="865" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Article live</text>
-  <text x="865" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">dans l'app</text>
-  <!-- Check icon -->
-  <circle cx="774" cy="66" r="12" fill="#1d9e75" opacity=".12"/>
-  <path d="M768,66 L772,70 L780,62" stroke="#0f6e56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-
-  <!-- Bottom: lightning + label -->
-  <text x="530" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="500" fill="#1d9e75">⚡  Quelques minutes</text>
-</svg>
-      </div>
-      <div class="minis">
-        <div class="mini"><div class="chip num">1</div><div class="rtext"><div class="ct">Rédaction dans Notion</div><div class="cd">Le support écrit l'article dans son espace habituel.</div></div></div>
-        <div class="mini"><div class="chip num">2</div><div class="rtext"><div class="ct">Publication</div><div class="cd">Un statut « publié » suffit. Pas de ticket, pas de déploiement.</div></div></div>
-        <div class="mini"><div class="chip num">3</div><div class="rtext"><div class="ct">Live dans l'app</div><div class="cd">L'article est servi depuis Notion, visible par les utilisateurs.</div></div></div>
-      </div>
-      <p class="tag" style="margin-top:16px"><b>Résultat :</b> le coût de dev pour intégrer un article disparaît, et le flow du support ne change pas.</p>
-    </div>
-  </section>
-
-  <!-- 4 · GAINS -->
-  <section class="slide light">
-    <span class="pnum">04 / 07</span>
-    <div class="head">
-      <p class="kick">Ce que ça change</p>
-      <h2 class="h">Trois gains immédiats</h2>
-    </div>
-    <div class="body">
-      <div class="rows">
-        <div class="row"><div class="statnum"><b>0</b><span>ligne de code</span></div><div class="rtext"><div class="ct">Coût de développement supprimé</div><div class="cd">Publier un article ne mobilise plus l'équipe produit — le support est autonome.</div></div></div>
-        <div class="row"><div class="statnum"><b>↑</b><span>vélocité</span></div><div class="rtext"><div class="ct">Sortie accélérée</div><div class="cd">Les articles paraissent dès qu'ils sont écrits, sans attendre un déploiement.</div></div></div>
-        <div class="row"><div class="statnum"><b>=</b><span>même outil</span></div><div class="rtext"><div class="ct">Flow support inchangé</div><div class="cd">Le support est déjà sur Notion : aucune nouvelle habitude à prendre.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 · IA -->
-  <section class="slide light">
-    <span class="pnum">05 / 07</span>
-    <div class="split">
-      <div class="intro">
-        <p class="kick">Accéléré par l'IA</p>
-        <h2 class="h">Rédigé et publié avec Claude &amp; Codex</h2>
-        <p class="sub">Connectés à Notion, ils écrivent, mettent en forme et publient. Le support pilote, l'IA exécute.</p>
-        <p class="tag">Notion reste la source unique de vérité.</p>
-      </div>
-      <div class="rows">
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div class="rtext"><div class="ct">Rédaction assistée</div><div class="cd">Un prompt suffit : un article structuré, prêt à lire.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg></div><div class="rtext"><div class="ct">Mise en forme automatique</div><div class="cd">Titres, callouts, liens — la mise en page Notion gérée par l'IA.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M20 16.5A4.5 4.5 0 0 0 17 8h-1.3A7 7 0 1 0 4 14.9"/></svg></div><div class="rtext"><div class="ct">Publication directe</div><div class="cd">Créé et publié dans Notion, donc live dans l'app.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 · KNOWLEDGE BASE -->
-  <section class="slide light">
-    <span class="pnum">06 / 07</span>
-    <div class="split">
-      <div class="intro">
-        <p class="kick">L'effet de levier</p>
-        <h2 class="h">Une base de connaissance métier, partagée</h2>
-        <p class="sub">Toutes les équipes travaillent déjà dans Notion, sur un espace commun. On ouvre la lecture à tous — édition protégée.</p>
-        <p class="tag"><b>Résultat :</b> une même source, fiable, pour l'app et pour les équipes.</p>
-      </div>
-      <div class="rows">
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="rtext"><div class="ct">Déjà adopté</div><div class="cd">Chaque équipe utilise Notion au quotidien : aucune adoption à forcer.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="rtext"><div class="ct">Ouvert en lecture</div><div class="cd">L'espace est accessible à tout le monde dans l'entreprise.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="rtext"><div class="ct">Édition protégée</div><div class="cd">Les droits Notion garantissent que seuls les référents modifient le contenu.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-
-  
-
-  
-
-  <!-- 9 · AVANT / MAINTENANT -->
-  <section class="slide light">
-    <span class="pnum">07 / 07</span>
-    <div class="head">
-      <p class="kick">L'impact — en résumé</p>
-      <h2 class="h">Avant / Maintenant</h2>
-    </div>
-    <div class="body">
-      <div class="cols">
-        <div class="card col">
-          <div class="colh" style="color:var(--red)">Avant</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Intégration développeur requise</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Délai avant chaque publication</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Double saisie support ↔ produit</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Connaissance dispersée, non partagée</div>
-        </div>
-        <div class="card col tl">
-          <div class="colh" style="color:var(--accent-d)">Maintenant</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Publication en autonomie, sans dev</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Article live dès qu'il est écrit</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Notion = source unique de vérité</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Base de connaissance métier partagée</div>
-        </div>
-      </div>
-      <p class="tag hero"><b>Notion + IA</b> <span class="grn">= un support plus rapide, plus autonome, sur une connaissance métier partagée.</span></p>
-    </div>
-  </section>
-
-  
-
-</div></div>
-
-<div class="hint"><span><kbd>←</kbd> <kbd>→</kbd> naviguer</span><span><kbd>F</kbd> plein écran</span><span><kbd>L</kbd> langue</span></div>
-<button id="lang" class="langbtn" title="Langue (L)">EN</button>
-<div class="bar-wrap"><div class="bar-fill" id="barfill"></div></div>
+<nav class="nav">
+  <button id="prev" aria-label="Précédent">‹</button>
+  <div class="bar"><i id="progress"></i></div>
+  <span id="count">1 / 7</span>
+  <button id="next" aria-label="Suivant">›</button>
+  <div class="vol">
+    <button id="music" aria-label="Couper la musique" title="Musique (M)">🔊</button>
+    <div class="volpop"><div class="volbox"><input id="volume" type="range" min="0" max="100" step="1" value="60" aria-label="Volume"></div></div>
+  </div>
+  <button id="lang" class="lang" title="Langue (L)">EN</button>
+</nav>
+</main>
 
 <script>
-const slides=[...document.querySelectorAll('.slide')];
-const stage=document.getElementById('stage');
-const dotsWrap=document.getElementById('dots');
-const barfill=document.getElementById('barfill');
-let i=0;
-slides.forEach((_,n)=>{const d=document.createElement('i');d.onclick=e=>{e.stopPropagation();go(n);};dotsWrap.appendChild(d);});
-const dots=[...dotsWrap.children];
-function go(n){
-  i=Math.max(0,Math.min(slides.length-1,n));
-  slides.forEach((s,k)=>s.classList.toggle('active',k===i));
-  dots.forEach((d,k)=>d.classList.toggle('on',k===i));
-  barfill.style.width=((i+1)/slides.length*100)+'%';
-}
-function fit(){const s=Math.min(innerWidth/1280*0.97, innerHeight/720*0.93); stage.style.transform='scale('+s+')';}
-addEventListener('resize',fit); fit();
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(i+1);}
-  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1);}
-  else if(e.key==='Home')go(0);
-  else if(e.key==='End')go(slides.length-1);
-  else if(e.key==='l'||e.key==='L')applyLang(lang==='en'?'fr':'en');
-  else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
-});
-stage.addEventListener('click',e=>{const r=stage.getBoundingClientRect();go(i+((e.clientX-r.left)<r.width*0.32?-1:1));});
-go(0);
+/* ============ moteur stop-motion ============ */
+const W=640,H=360,FPS=8,INK='#2b2118';
+const HAND='"Patrick Hand","Chalkboard SE","Comic Sans MS",cursive';
+const MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
+let c,_s=1;
+const seed=n=>{_s=(Math.abs(n|0)%2147483646)+1};
+const rnd=()=>{_s=_s*16807%2147483647;return(_s-1)/2147483646};
+const J=(a=1)=>(rnd()*2-1)*a;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const on=(f,a,b=1e9)=>f>=a&&f<b;
+function kf(f,k){if(f<=k[0][0])return k[0][1];for(let i=1;i<k.length;i++){const[f1,v1]=k[i],[f0,v0]=k[i-1];if(f<=f1)return v0+(v1-v0)*(f-f0)/(f1-f0)}return k[k.length-1][1]}
 
-/* langue FR / EN : le français est dans le HTML, ce dictionnaire donne l'anglais */
+function R(x,y,w,h,r=8){c.roundRect(x,y,w,h,r)}
+// découpe en papier : ombre portée + léger tremblement à chaque image
+function cut(x,y,path,fill,o={}){
+  c.save();c.translate(x+J(o.jit??.9),y+J(o.jit??.9));c.rotate((o.rot||0)+J(o.wob??.015));
+  if(o.shadow!==false){c.save();c.translate(3,4);c.fillStyle='rgba(70,45,20,.25)';c.beginPath();path();c.fill();c.restore()}
+  c.fillStyle=fill;c.beginPath();path();c.fill();
+  if(o.stroke!==false){c.lineWidth=o.lw||2;c.strokeStyle=o.stroke||INK;c.lineJoin='round';c.stroke()}
+  c.restore();
+}
+function T(s,x,y,o={}){
+  const size=o.size||16;
+  c.save();c.translate(x+J(.5),y+J(.5));c.rotate((o.rot||0)+J(.01));
+  c.font=`${o.w||400} ${size}px ${o.font||HAND}`;c.fillStyle=o.color||INK;c.textAlign=o.align||'center';c.textBaseline='middle';
+  const L=String(s).split('\n');L.forEach((l,i)=>c.fillText(l,0,(i-(L.length-1)/2)*size*1.18));
+  c.restore();
+}
+function scaled(x,y,s,fn){c.save();c.translate(x,y);c.scale(s,s);fn();c.restore()}
+
+const paper=(()=>{const p=document.createElement('canvas');p.width=W*2;p.height=H*2;const g=p.getContext('2d');
+  g.fillStyle='#efe4cf';g.fillRect(0,0,p.width,p.height);
+  for(let i=0;i<16000;i++){g.fillStyle=`rgba(${Math.random()<.5?'90,60,30':'255,255,255'},${Math.random()*.09})`;g.fillRect(Math.random()*p.width,Math.random()*p.height,1+Math.random()*2,1+Math.random()*2)}
+  return p})();
+const vign=(()=>{const p=document.createElement('canvas');p.width=W;p.height=H;const g=p.getContext('2d');
+  const v=g.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.62);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(40,20,0,.32)');g.fillStyle=v;g.fillRect(0,0,W,H);return p})();
+
+function table(){c.fillStyle='#b98654';c.fillRect(0,300,W,60);c.fillStyle='#9c6d40';c.fillRect(0,300,W,4);
+  c.strokeStyle='rgba(80,40,10,.25)';c.lineWidth=1.5;for(let i=0;i<5;i++){c.beginPath();for(let x=0;x<=W;x+=20)c.lineTo(x,312+i*10+Math.sin(x/40+i)*2);c.stroke()}}
+
+/* ---- personnages et accessoires ---- */
+function face(x,y,mood,f){
+  c.save();c.translate(x+J(.4),y+J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2;c.lineCap='round';
+  const blink=f%23===0;
+  for(const ex of[-7,7]){c.beginPath();if(blink){c.moveTo(ex-3,-3);c.lineTo(ex+3,-3);c.stroke()}else{c.arc(ex,-3,mood==='panic'?3.2:2.4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,3,7,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='panic'){c.ellipse(0,9,4,5.5,0,0,7);c.fill();c.beginPath();c.moveTo(-11,-12);c.lineTo(-4,-9);c.moveTo(11,-12);c.lineTo(4,-9);c.stroke()}
+  else{c.moveTo(-5,8);c.lineTo(5,8);c.stroke()}
+  c.restore();
+}
+// origine = entre les pieds
+function person(o={}){
+  const col=o.color||'#4f7cac',skin=o.skin||'#f1c39b',f=o.f||0,w=o.walk?(f%2?1:-1):0;
+  cut(-10+w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  cut(1-w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  const up=o.arms==='up',wave=o.arms==='wave';
+  const la=up?2.7+(f%2?.25:-.1):.28, ra=up?-2.7-(f%2?.1:-.25):wave?-2.3+(f%2?.45:0):-.28;
+  cut(-16,-74,()=>R(-4,0,9,32,4),col,{rot:la});
+  cut(16,-74,()=>R(-5,0,9,32,4),col,{rot:ra});
+  cut(-19,-80,()=>R(0,0,38,54,13),col);
+  if(o.overalls)cut(-13,-62,()=>R(0,0,26,34,5),o.overalls);
+  cut(0,-100,()=>c.arc(0,0,21,0,Math.PI*2),skin);
+  if(o.hair)cut(0,-106,()=>{c.ellipse(0,0,21,13,0,Math.PI,0);c.closePath()},o.hair);
+  if(o.cap){cut(0,-110,()=>{c.ellipse(0,0,21,12,0,Math.PI,0);c.closePath()},o.cap);cut(2,-114,()=>R(0,0,26,6,3),o.cap)}
+  face(0,-98,o.mood||'neutral',f);
+  if(o.mood==='panic'){const d=(f%3)*4;cut(26,-118+d,()=>{c.arc(0,0,4,0,Math.PI);c.lineTo(0,-9);c.closePath()},'#7cc0ec',{lw:1.2,shadow:false})}
+}
+function robot(o={}){
+  const col=o.color||'#d97757',f=o.f||0,mood=o.mood||'neutral';
+  c.save();c.strokeStyle=INK;c.lineWidth=2.5;c.beginPath();c.moveTo(0,-104);c.lineTo(J(1.5),-120);c.stroke();c.restore();
+  cut(0,-122,()=>c.arc(0,0,6,0,7),'#f4c542');
+  cut(-27,-42,()=>R(-8,0,9,26,4),col,{rot:o.wave?2.4+(f%2?.35:0):.2});
+  cut(27,-42,()=>R(-1,0,9,26,4),col,{rot:-.2});
+  cut(-26,-46,()=>R(0,0,52,38,10),col);
+  cut(-15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(-34,-104,()=>R(0,0,68,58,16),col);
+  cut(-25,-97,()=>R(0,0,50,40,10),'#fff8ec',{shadow:false,lw:1.5});
+  c.save();c.translate(J(.4),J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2.5;c.lineCap='round';
+  const blink=f%19===0;
+  for(const ex of[-10,10]){c.beginPath();
+    if(blink){c.moveTo(ex-4,-82);c.lineTo(ex+4,-82);c.stroke()}
+    else if(mood==='happy'){c.arc(ex,-80,4.5,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    else if(mood==='think'){c.arc(ex+3,-86,4,0,7);c.fill()}
+    else{c.arc(ex,-82,4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,-72,6,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='sad'){c.arc(0,-63,6,1.2*Math.PI,1.8*Math.PI);c.stroke()}
+  else if(mood==='think'){c.arc(4,-68,2.5,0,7);c.stroke()}
+  else{c.moveTo(-5,-68);c.lineTo(5,-68);c.stroke()}
+  c.restore();
+  if(o.label)T(o.label,0,-27,{size:14,color:'#fff',w:700});
+}
+function bubble(x,y,w,h,s,o={}){
+  const tx=o.tx??30,td=o.tdx??-8;
+  cut(x,y,()=>{c.moveTo(tx,h-2);c.lineTo(tx+td,h+16);c.lineTo(tx+16,h-2);R(0,0,w,h,14)},o.fill||'#fffdf6');
+  T(s,x+w/2,y+h/2,{size:o.size||15,font:o.font});
+}
+function envelope(x,y,o={}){
+  cut(x-24,y-15,()=>R(0,0,48,30,3),o.color||'#fff3c4');
+  c.save();c.translate(x,y);c.strokeStyle=INK;c.lineWidth=1.5;c.beginPath();c.moveTo(-22,-13);c.lineTo(0,3);c.lineTo(22,-13);c.stroke();c.restore();
+  if(o.label){
+    const size=o.size||12,font=o.mono?MONO:HAND;c.font=`${size}px ${font}`;
+    const L=o.label.split('\n'),lw=Math.max(...L.map(l=>c.measureText(l).width))+16,lh=L.length*size*1.18+10;
+    cut(x-lw/2,y+22,()=>R(0,0,lw,lh,6),'#fffdf6',{lw:1.5});T(o.label,x,y+22+lh/2,{size,font});
+  }
+}
+/* ---- accessoires Notion ---- */
+const GREEN='#1d9e75',GREEN_D='#0f6e56',GREEN_L='#e7f4ee',RED='#b8503f',RED_L='#f7ece7';
+const LINEW=[.92,.7,.84,.6,.78,.66,.88,.55,.8,.62];
+// une page Notion : logo, titre, statut, lignes de texte (n), titre de section et callout en option
+function notionPage(x,y,w,h,o={}){
+  const n=o.n??6,step=o.step||15;
+  cut(x,y,()=>R(0,0,w,h,8),'#ffffff');
+  cut(x+10,y+10,()=>R(0,0,22,22,5),'#ffffff',{lw:1.6,shadow:false});
+  T('N',x+21,y+21,{size:14,w:800,font:'Inter,sans-serif'});
+  if(o.title)T(o.title,x+40,y+21,{size:o.ts||14,w:700,align:'left'});
+  if(o.status){const pub=o.status==='Published';cut(x+w-78,y+11,()=>R(0,0,68,20,10),pub?GREEN:'#e4d6bd',{lw:1.5,shadow:false});T(o.status,x+w-44,y+21,{size:11,color:pub?'#fff':INK,w:700})}
+  for(let i=0;i<n;i++){
+    const ly=y+46+i*step;if(ly>y+h-8)break;
+    if(o.callout&&i===2){cut(x+12,ly-6,()=>R(0,0,w-24,step-2,4),GREEN_L,{lw:1,stroke:GREEN,shadow:false});T('💡',x+22,ly+1,{size:9});continue}
+    const head=o.heading&&i===0;
+    c.fillStyle=o.mark===i?GREEN:head?INK:'#cfc8bb';c.fillRect(x+14+J(.4),ly-(head?3:2),(w-28)*(head?.5:LINEW[i%10]),head?6:4);
+  }
+}
+// le téléphone qui affiche l'app ; article = 0..1 pour faire glisser l'article à l'écran
+function phone(x,y,w,h,o={}){
+  cut(x,y,()=>R(0,0,w,h,18),'#2b2118');
+  cut(x+7,y+18,()=>R(0,0,w-14,h-32,8),'#ffffff',{shadow:false,lw:1});
+  c.fillStyle='#5a5048';c.fillRect(x+w/2-14,y+8,28,4);
+  c.fillStyle=GREEN;c.fillRect(x+7,y+18,w-14,22);T('Help center',x+w/2,y+29,{size:w>110?11:9,color:'#fff',w:700});
+  const p=o.article??0;
+  if(p>0){
+    const ay=y+48+(1-p)*(h-60);
+    c.save();c.beginPath();c.rect(x+7,y+40,w-14,h-54);c.clip();
+    cut(x+14,ay,()=>R(0,0,w-28,h-70,6),'#fff',{lw:1.4});
+    c.fillStyle=INK;c.fillRect(x+22,ay+12,(w-44)*.6,5);
+    for(let i=0;i<7;i++){c.fillStyle='#cfc8bb';c.fillRect(x+22,ay+28+i*12,(w-44)*LINEW[i],3)}
+    c.restore();
+  }
+}
+function laptop(x,y,o={}){
+  cut(x-48,y-62,()=>R(0,0,96,60,5),'#3a3632');
+  cut(x-42,y-57,()=>R(0,0,84,50,3),o.code?'#1f1a16':'#ffffff',{shadow:false,lw:1});
+  const n=Math.min(o.n??0,6);
+  for(let i=0;i<n;i++){c.fillStyle=o.code?['#ff9e7a','#b5e48c','#ffd166','#9ecbff'][i%4]:'#cfc8bb';c.fillRect(x-36+(o.code&&i%2?8:0),y-50+i*7,(o.code?50:66)*LINEW[i],3)}
+  cut(x-58,y-4,()=>R(0,0,116,6,3),'#5a5048');
+}
+function miniPage(x,y){cut(x-12,y-15,()=>R(0,0,24,30,3),'#fff',{lw:1.5});for(let i=0;i<4;i++){c.fillStyle='#cfc8bb';c.fillRect(x-7,y-8+i*6,14*LINEW[i],2)}}
+function calendar(x,y,s){cut(x-30,y-30,()=>R(0,0,60,60,6),'#fff');cut(x-30,y-30,()=>R(0,0,60,16,[6,6,0,0]),RED,{shadow:false});T(s,x,y+8,{size:18,w:700})}
+function clock(x,y,r,t){
+  cut(x,y,()=>c.arc(0,0,r,0,7),'#fff');
+  c.save();c.translate(x,y);c.strokeStyle=INK;c.lineCap='round';
+  c.lineWidth=2;c.beginPath();c.moveTo(0,0);c.lineTo(Math.sin(t)*r*.75,-Math.cos(t)*r*.75);c.stroke();
+  c.lineWidth=3;c.beginPath();c.moveTo(0,0);c.lineTo(Math.sin(t/12)*r*.5,-Math.cos(t/12)*r*.5);c.stroke();
+  c.restore();
+}
+function stamp(x,y,s,col,f,f0,size=26){
+  if(f<f0)return;
+  scaled(x,y,kf(f,[[f0,1.9],[f0+3,1]]),()=>{
+    c.font=`700 ${size}px ${HAND}`;const w=c.measureText(s).width+28;
+    c.save();c.rotate(-.14);c.strokeStyle=col;c.lineWidth=4;c.beginPath();R(-w/2,-size*.8,w,size*1.6,8);c.stroke();c.restore();
+    T(s,0,0,{size,color:col,w:700,rot:-.14});
+  });
+}
+function pointer(x,y){T('👆',x,y,{size:32})}
+function label(s,x){T(s,x,328,{size:15,color:'#fff8ec',w:700})}
+// surligne l'étape de la liste .steps qui correspond au moment du film
+const syncSteps=stages=>(f,slide)=>{const s=stages.filter(x=>f>=x).length-1;slide.querySelectorAll('.steps li').forEach((li,i)=>{li.classList.toggle('on',i===s);li.classList.toggle('done',i<s)})};
+
+/* ---- les scènes ---- */
+const SCENES={};
+SCENES.cover={frames:90,draw(f){
+  table();
+  const n=clamp(Math.floor((f-4)/3),0,9);
+  notionPage(50,52,260,220,{title:'Reset your password',n,heading:true,callout:n>2,status:f>=40?'Published':'Draft'});
+  if(on(f,26,44))pointer(kf(f,[[26,340],[38,276]]),kf(f,[[26,330],[38,86]])+(on(f,38,41)?3:0));
+  if(on(f,40,44))T('click!',258,40,{size:15,color:GREEN_D,w:700});
+  if(on(f,42,54)){const t=(f-42)/12;miniPage(330+t*130,150-Math.sin(t*Math.PI)*60)}
+  phone(460,36,140,260,{article:kf(f,[[52,0],[58,1]])});
+  label('Notion',180);label('The app',530);
+  stamp(530,190,'LIVE ✓',GREEN,f,62);
+}};
+SCENES.before={frames:128,draw(f){
+  table();
+  calendar(320,58,`Day ${Math.min(9,1+Math.floor(f/14))}`);
+  clock(400,58,20,f*.9);
+  const panic=on(f,56,104);
+  scaled(60,300,1,()=>person({f,mood:panic?'panic':'neutral',hair:'#5b3a29',arms:on(f,104,128)?'up':''}));
+  laptop(150,300,{n:Math.floor(f/2)});
+  scaled(585,300,1,()=>person({f:f+5,color:'#3a3a48',hair:'#2b2118'}));
+  laptop(495,300,{code:true,n:on(f,36,56)||on(f,88,104)?Math.floor((f%20)/3):f>=104?6:2});
+  if(on(f,36,56)||on(f,88,104))if(f%4<2)T('tap tap',495,222,{size:14,color:'#6b5a48'});
+  if(on(f,8,20))bubble(20,96,150,40,'Article ready!',{tx:30,size:14});
+  if(on(f,18,36))envelope(kf(f,[[18,210],[34,435]]),170,{label:'ticket'});
+  if(on(f,56,72))envelope(kf(f,[[56,435],[70,210]]),170,{color:RED_L,label:'fix this?'});
+  if(on(f,72,88))envelope(kf(f,[[72,210],[86,435]]),170,{label:'v2'});
+  if(f>=104)bubble(20,90,160,44,'Finally… 😮‍💨',{tx:30,size:15});
+  stamp(320,150,'days later…',RED,f,106,22);
+  label('SUPPORT',100);label('DEVELOPER',540);
+}};
+SCENES.now={frames:96,onFrame:syncSteps([0,28,44]),draw(f){
+  table();
+  const pub=f>=32;
+  scaled(56,300,1,()=>person({f,mood:f>=54?'happy':'neutral',hair:'#5b3a29',arms:f>=56&&f<76?'wave':''}));
+  notionPage(100,92,220,190,{title:'Invoices',n:clamp(Math.floor(f/3),0,9),heading:true,status:pub?'Published':'Draft'});
+  if(on(f,22,34))pointer(kf(f,[[22,340],[30,286]]),kf(f,[[22,320],[30,124]])+(on(f,30,33)?3:0));
+  if(on(f,32,36))T('click!',266,82,{size:15,color:GREEN_D,w:700});
+  if(on(f,34,46)){const t=(f-34)/12;miniPage(330+t*140,150-Math.sin(t*Math.PI)*60)}
+  phone(470,36,140,260,{article:kf(f,[[44,0],[50,1]])});
+  stamp(540,190,'LIVE ✓',GREEN,f,54);
+  if(f>=58)T('⚡ minutes, not days',395,26,{size:20,color:GREEN_D,w:700});
+  label('Notion',210);label('The app',540);
+}};
+SCENES.wins={frames:100,draw(f){
+  const P=[24,230,436],ST=[4,34,64],y=40,w=180,h=240;
+  P.forEach((x,i)=>{
+    const st=ST[i];if(f<st)return;
+    const cx=x+w/2,k=f-st;
+    scaled(cx,y+h/2,kf(f,[[st,.2],[st+3,1.06],[st+5,1]]),()=>{
+      cut(-w/2,-h/2,()=>R(0,0,w,h,12),'#fffdf6');
+      cut(-w/2,-h/2,()=>R(0,0,w,12,[12,12,0,0]),GREEN,{shadow:false});
+    });
+    if(k<5)return;
+    if(i===0){
+      T('0',cx,y+64,{size:62,color:GREEN,w:800});T('lines of code',cx,y+108,{size:17});
+      scaled(cx-22,y+232,.55,()=>person({f,color:'#3a3a48',hair:'#2b2118',mood:'happy'}));
+      T('☕',cx+28,y+200,{size:24});
+      for(let z=0;z<3;z++)T('z',cx+26+z*9,y+176-((k+z*5)%15)*2,{size:12+z*3,color:'#6b5a48'});
+    }else if(i===1){
+      T('↑',cx,y+64,{size:62,color:GREEN,w:800});T('faster releases',cx,y+108,{size:17});
+      const t=(k*5)%110;
+      for(let s=0;s<3;s++){c.strokeStyle='rgba(43,33,24,.35)';c.lineWidth=2;c.beginPath();c.moveTo(cx-40+t*.5-s*10,y+226-t+s*14);c.lineTo(cx-62+t*.5-s*10,y+248-t+s*14);c.stroke()}
+      T('🚀',cx-24+t*.5,y+210-t,{size:30});
+    }else{
+      T('=',cx,y+64,{size:62,color:GREEN,w:800});T('same tool',cx,y+108,{size:17});
+      cut(cx-30,y+148,()=>R(0,0,60,60,12),'#fff',{lw:2.5});T('N',cx,y+179,{size:36,w:800,font:'Inter,sans-serif'});
+      if(k>=10){cut(cx+30,y+148,()=>c.arc(0,0,14,0,7),GREEN);T('✓',cx+30,y+148,{size:17,color:'#fff',w:700})}
+    }
+  });
+}};
+SCENES.ai={frames:116,draw(f){
+  table();
+  const typing=on(f,28,80),done=f>=84;
+  scaled(56,300,.95,()=>person({f,mood:done?'happy':'neutral',hair:'#5b3a29'}));
+  scaled(195,300,.88,()=>robot({f,mood:typing?'think':done?'happy':'neutral'}));
+  scaled(282,300,.78,()=>robot({f:f+9,color:'#5b6b7a',mood:typing?'think':done?'happy':'neutral',wave:on(f,80,88)}));
+  if(on(f,2,28))bubble(14,44,190,52,'Write an article\nabout invoices',{tx:40,size:15});
+  if(typing&&f%4<2){T('✨',330,150+J(4),{size:16});T('✨',330,210+J(4),{size:12})}
+  notionPage(350,36,262,250,{title:'Invoices FAQ',n:clamp(Math.floor((f-28)/3),0,12),heading:true,callout:f>=62,status:f>=84?'Published':'Draft'});
+  if(on(f,60,78))T('formatting ✨',480,22,{size:15,color:GREEN_D,w:700});
+  if(on(f,84,88))T('click!',520,22,{size:15,color:GREEN_D,w:700});
+  stamp(480,180,'LIVE ✓',GREEN,f,92);
+  label('Support',56);label('Claude',195);label('Codex',282);
+}};
+SCENES.kb={frames:104,draw(f){
+  table();
+  notionPage(225,36,190,214,{title:'Knowledge base',ts:13,n:on(f,84,104)?11:10,heading:true,mark:on(f,84,104)?10:-1,step:16});
+  const PEOPLE=[[50,'#e76f51','Sales',-60],[140,'#4f7cac','Ops',-60],[500,'#8e6bbf','Product',700],[590,GREEN,'Support',700]];
+  PEOPLE.forEach(([x,col,name,from],k)=>{
+    const px=kf(f,[[0,from],[16,x]]);
+    scaled(px,300,.85,()=>person({f:f+k*4,walk:f<16,color:col,hair:['#5b3a29','#2b2118','#c8553d','#3b2a20'][k],mood:k===0&&on(f,60,80)?'panic':'happy'}));
+    if(f>=16)label(name,x);
+    if(on(f,20+k*4,48))T('👀',x,188,{size:22});
+  });
+  if(on(f,30,48))T('read ✓',320,272,{size:16,color:GREEN_D,w:700});
+  if(on(f,48,62))T('✏️',kf(f,[[48,70],[60,230]]),kf(f,[[48,200],[60,150]]),{size:24});
+  if(on(f,60,80)){T('🔒',248,150,{size:30});bubble(10,110,130,40,'read-only',{tx:34,size:15})}
+  if(on(f,78,92))T('✏️',kf(f,[[78,570],[90,410]]),kf(f,[[78,200],[90,200]]),{size:24});
+  if(f>=88){T('✓ owner',590,170,{size:16,color:GREEN_D,w:700})}
+}};
+SCENES.impact={frames:100,draw(f){
+  c.fillStyle='rgba(247,236,231,.65)';c.fillRect(0,0,320,H);
+  c.fillStyle='rgba(231,244,238,.75)';c.fillRect(320,0,320,H);
+  c.save();c.strokeStyle='rgba(43,33,24,.35)';c.setLineDash([6,6]);c.lineWidth=2;c.beginPath();c.moveTo(320,10);c.lineTo(320,H-10);c.stroke();c.restore();
+  T('BEFORE',160,26,{size:22,color:RED,w:700});T('NOW',480,26,{size:22,color:GREEN_D,w:700});
+  // avant : allers-retours sans fin
+  c.fillStyle='rgba(43,33,24,.25)';c.fillRect(20,242,280,3);c.fillRect(340,242,280,3);
+  scaled(46,240,.6,()=>person({f,mood:'panic',hair:'#5b3a29'}));
+  scaled(274,240,.6,()=>person({f:f+5,color:'#3a3a48',hair:'#2b2118'}));
+  const t=(f%32)/32,ex=76+(t<.5?t*2:(1-t)*2)*168;
+  envelope(ex,176,{color:t<.5?'#fff3c4':RED_L});
+  calendar(120,84,`Day ${1+Math.floor(f/10)%9}`);clock(210,84,20,f*.9);
+  // maintenant : directement dans l'app
+  notionPage(346,92,120,140,{n:6,step:13});
+  const fl=(f%40)/40;if(fl<.5)miniPage(470+fl*2*52,150-Math.sin(fl*2*Math.PI)*30);
+  phone(528,62,92,178,{article:f%40>=20?1:0});
+  if(f%40>=22){cut(600,90,()=>c.arc(0,0,11,0,7),GREEN);T('✓',600,90,{size:13,color:'#fff',w:700})}
+  if(f>=64)scaled(320,296,kf(f,[[64,.3],[67,1]]),()=>{cut(-150,-30,()=>R(0,0,300,60,12),'#2b2118');T('Notion + AI 🚀',0,0,{size:24,color:'#fff8ec',w:700})});
+}};
+
+/* ---- lecteur ---- */
+class Reel{
+  constructor(cv,id){
+    this.cv=cv;this.id=id;this.sc=SCENES[cv.dataset.scene];this.slide=cv.closest('.slide');this.f=0;
+    cv.width=W*2;cv.height=H*2;this.ctx=cv.getContext('2d');
+    const cap=document.createElement('figcaption');
+    cap.innerHTML='<button class="pp" title="Lecture / pause">❚❚</button><button class="rw" title="Revoir">↺</button><input class="seek" type="range" min="0" step="1" aria-label="Position dans le film"><span class="fc"></span>';
+    cv.after(cap);this.cap=cap;this.fig=cv.parentElement;
+    cap.querySelector('.pp').onclick=()=>this.toggle();cap.querySelector('.rw').onclick=()=>this.play(true);cv.onclick=()=>this.toggle();
+    // barre de lecture : on met en pause pendant qu'on glisse, puis on reprend si le film tournait
+    const seek=this.seek=cap.querySelector('.seek');seek.max=this.sc.frames-1;
+    seek.addEventListener('pointerdown',()=>{this.wasPlaying=this.playing;this.stop()});
+    seek.addEventListener('input',()=>{this.f=+seek.value;this.render()});
+    seek.addEventListener('change',()=>{if(this.wasPlaying)this.play();this.wasPlaying=false});
+    seek.addEventListener('keydown',e=>e.stopPropagation());
+  }
+  render(){
+    c=this.ctx;c.setTransform(2,0,0,2,0,0);seed(this.f*131+this.id*977);
+    c.drawImage(paper,-3+J(1.2),-3+J(1.2),W+6,H+6);
+    this.sc.draw(this.f);
+    c.fillStyle=`rgba(255,235,190,${rnd()*.08})`;c.fillRect(0,0,W,H);c.drawImage(vign,0,0);
+    this.cap.querySelector('.fc').textContent=`${String(this.f+1).padStart(3,'0')} / ${this.sc.frames}`;
+    this.seek.value=this.f;this.seek.style.setProperty('--p',`${this.f/(this.sc.frames-1)*100}%`);
+    this.sc.onFrame?.(this.f,this.slide);
+  }
+  play(reset){if(reset)this.f=0;clearInterval(this.t);this.t=setInterval(()=>{this.f=(this.f+1)%this.sc.frames;this.render()},1000/FPS);this.playing=true;this.fig.classList.remove('paused');this.cap.querySelector('.pp').textContent='❚❚';this.render()}
+  stop(){clearInterval(this.t);this.playing=false;this.fig.classList.add('paused');this.cap.querySelector('.pp').textContent='▶'}
+  toggle(){this.playing?this.stop():this.play()}
+}
+
+/* ---- petite musique (générée en Web Audio, aucun fichier) ---- */
+const Music=(()=>{
+  // Musique propre à cette présentation : lo-fi calme, 88 bpm, accords de 7e, rythme légèrement swing
+  let ctx,master,timer,next=0,step=0,on=false,volume=.6;
+  const gainFor=v=>.3*v;
+  const EIGHTH=60/88/2,SWING=EIGHTH*.18;
+  // Fa maj7 – Mi m7 – Ré m7 – Sol 7 : [basse, accord]
+  const CH=[[29,[53,57,60,64]],[28,[52,55,59,62]],[26,[50,53,57,60]],[31,[53,55,59,62]]];
+  const MEL=[76,0,0,72,0,69,0,0, 74,0,71,0,67,0,0,0, 72,0,0,69,0,65,0,69, 71,0,74,0,77,0,0,0];
+  const hz=m=>440*2**((m-69)/12);
+  function note(t,m,dur,type,vol,detune=0){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=hz(m);o.detune.value=detune;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(master);o.start(t);o.stop(t+dur+.05);
+  }
+  // piano électrique : deux sinus légèrement désaccordés
+  const keys=(t,m,dur,vol)=>{note(t,m,dur,'sine',vol,-6);note(t,m,dur,'sine',vol,6)};
+  function kick(t,vol){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';
+    o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+.28);
+    o.connect(g).connect(master);o.start(t);o.stop(t+.3);
+  }
+  function noise(t,vol,type,freq,len){
+    const b=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)**2;
+    const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type=type;f.frequency.value=freq;g.gain.value=vol;s.buffer=b;s.connect(f).connect(g).connect(master);s.start(t);
+  }
+  function schedule(){
+    while(next<ctx.currentTime+.2){
+      const i=step%8,loop=Math.floor(step/32)%4,[bass,chord]=CH[Math.floor(step/8)%4],m=MEL[step%32];
+      const t=next+(i%2?SWING:0);
+      if(i===0)chord.forEach(n=>keys(t,n,1.5,.035));
+      if(i===3)chord.forEach(n=>keys(t,n,.35,.02));
+      if(i===0||i===5)note(t,bass+12,.5,'triangle',.4);
+      if(i===0||i===5)kick(t,.5);
+      if(i===4)noise(t,.12,'bandpass',1800,.06);
+      noise(t,i%2?.025:.045,'highpass',7000,.03);
+      if(m&&loop>0)note(t,m,.7,'triangle',.16); // pas de mélodie sur la première boucle
+      next+=EIGHTH;step++;
+    }
+  }
+  function start(){
+    ctx??=new AudioContext();
+    if(!master){master=ctx.createGain();master.gain.value=gainFor(volume);master.connect(ctx.destination)}
+    ctx.resume();next=ctx.currentTime+.05;step=0;clearInterval(timer);timer=setInterval(schedule,50);on=true;
+  }
+  function stop(){clearInterval(timer);on=false;ctx?.suspend()}
+  function setVolume(v){volume=v;master?.gain.setTargetAtTime(gainFor(v),ctx.currentTime,.03)}
+  return{start,stop,setVolume,get on(){return on},get running(){return ctx?.state==='running'}};
+})();
+let musicWanted=true;
+const musicBtn=document.getElementById('music');
+function musicLabel(){const v=+volSlider.value;musicBtn.textContent=!musicWanted||v===0?'🔇':v<34?'🔈':v<67?'🔉':'🔊';musicBtn.setAttribute('aria-label',tr(musicWanted?'Couper la musique':'Remettre la musique'))}
+function setMusic(want){musicWanted=want;want?Music.start():Music.stop();musicLabel()}
+musicBtn.onclick=()=>setMusic(!musicWanted);
+// volume : retenu d'une visite à l'autre ; monter le volume remet la musique si elle était coupée
+const volSlider=document.getElementById('volume');
+function applyVolume(){const v=+volSlider.value;volSlider.style.setProperty('--p',v+'%');Music.setVolume(v/100);musicLabel()}
+try{const saved=localStorage.getItem('slides-volume');if(saved!==null)volSlider.value=saved}catch{}
+volSlider.addEventListener('input',()=>{
+  if(!musicWanted&&+volSlider.value>0)setMusic(true);
+  applyVolume();
+  try{localStorage.setItem('slides-volume',volSlider.value)}catch{}
+});
+volSlider.addEventListener('keydown',e=>e.stopPropagation());
+volSlider.style.setProperty('--p',volSlider.value+'%');Music.setVolume(volSlider.value/100); // l'icône est mise à jour par applyLang
+// on lance le son tout de suite ; si le navigateur le bloque, il démarre au premier clic ou à la première touche
+function tryAutoplay(){
+  setMusic(true);
+  setTimeout(()=>{
+    if(Music.running)return;
+    const first=e=>{
+      if(e.target===musicBtn||e.key==='m'||e.key==='M')return;
+      removeEventListener('pointerdown',first,true);removeEventListener('keydown',first,true);
+      if(musicWanted)setMusic(true);
+    };
+    addEventListener('pointerdown',first,true);addEventListener('keydown',first,true);
+  },400);
+}
+
+/* ---- langue FR / EN : le français est dans le HTML, ce dictionnaire donne l'anglais ---- */
 const I18N={
-"La FAQ propulsée par Notion — Hiway": "The FAQ powered by Notion — Hiway",
-"La FAQ propulsée": "The FAQ powered",
-"par Notion": "by Notion",
-"Des articles d'aide publiés directement dans l'app, sans coût de développement — rédigés avec l'IA, sur une base de connaissance partagée.": "Help articles published straight into the app, with no development cost — written with AI, on a shared knowledge base.",
-"Hiway · Pascal Zhang · zhangpas@gmail.com · zhang-pascal.com · Juillet 2026": "Hiway · Pascal Zhang · zhangpas@gmail.com · zhang-pascal.com · July 2026",
-"Publié · visible dans l'app": "Published · visible in the app",
+"La FAQ propulsée par Notion": "The FAQ powered by Notion",
+"Des articles d'aide publiés directement dans l'app, sans coût de développement, rédigés avec l'IA sur une base de connaissance partagée.": "Help articles published straight into the app, with no development cost, written with AI on a shared knowledge base.",
+"← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue": "← → to navigate · click the film to pause · F fullscreen · M music · L language",
+"· Juillet 2026": "· July 2026",
 "Le point de départ": "Where we started",
 "Avant : un parcours du combattant": "Before: an obstacle course",
-"Publier un article d'aide demandait du développement, deux équipes et des allers-retours — alors que le support rédigeait déjà tout dans Notion.": "Publishing a help article took development work, two teams and back-and-forth — even though support was already writing everything in Notion.",
-"DÉVELOPPEUR": "DEVELOPER",
-"Rédige l'article": "Writes the article",
-"dans Notion (brouillon)": "in Notion (draft)",
-"Transmet au dev": "Hands it to a dev",
-"Code & intègre": "Codes & integrates",
-"dans le produit": "into the product",
-"⟳ allers-retours, corrections": "⟳ back-and-forth, fixes",
-"Publication": "Publishing",
-"(enfin…)": "(finally…)",
-"Des jours de délai…": "Days of delay…",
+"Publier un article d'aide demandait du développement, deux équipes et des allers-retours, alors que le support rédigeait déjà tout dans Notion.": "Publishing a help article took development work, two teams and back-and-forth, even though support was already writing everything in Notion.",
 "Intégration = développement": "Integration = development",
-"Chaque article devait être recodé et déployé pour apparaître dans l'app.": "Every article had to be re-coded and deployed to show up in the app.",
+": chaque article devait être recodé et déployé.": ": every article had to be re-coded and deployed.",
 "Sortie lente": "Slow release",
-"Les articles attendaient un créneau produit avant d'être publiés.": "Articles waited for a product slot before going live.",
+": les articles attendaient un créneau produit.": ": articles waited for a product slot.",
 "Double saisie": "Double entry",
-"Écrit dans Notion, puis re-transcrit côté produit. Deux fois le travail.": "Written in Notion, then re-typed on the product side. Twice the work.",
+": écrit dans Notion, puis re-transcrit côté produit.": ": written in Notion, then re-typed on the product side.",
 "La solution": "The solution",
 "Maintenant : Notion → l'app, directement": "Now: Notion → the app, directly",
-"Le support rédige dans Notion comme d'habitude, change un statut — l'article est affiché tel quel dans l'app, zéro étape de développement.": "Support writes in Notion as usual and changes a status — the article shows up as-is in the app, with zero development steps.",
-"Support rédige": "Support writes",
-"dans Notion": "in Notion",
-"Change le statut": "Changes the status",
-"→ Publié": "→ Published",
-"dans l'app": "in the app",
-"⚡ Quelques minutes": "⚡ A few minutes",
-"Rédaction dans Notion": "Writing in Notion",
-"Le support écrit l'article dans son espace habituel.": "Support writes the article in its usual workspace.",
-"Un statut « publié » suffit. Pas de ticket, pas de déploiement.": "A “published” status is enough. No ticket, no deployment.",
-"Live dans l'app": "Live in the app",
-"L'article est servi depuis Notion, visible par les utilisateurs.": "The article is served from Notion and visible to users.",
+"Rédaction": "Writing",
+": le support écrit dans Notion, comme d'habitude.": ": support writes in Notion, as usual.",
+"Publication": "Publishing",
+": un statut « Publié » suffit. Pas de ticket, pas de déploiement.": ": a “Published” status is enough. No ticket, no deployment.",
+": l'article est servi depuis Notion, visible tout de suite dans l'app.": ": the article is served from Notion and shows up in the app right away.",
 "Résultat :": "Result:",
-"le coût de dev pour intégrer un article disparaît, et le flow du support ne change pas.": "the dev cost of integrating an article disappears, and the support workflow doesn't change.",
+"le coût de dev disparaît, et le flow du support ne change pas.": "the dev cost disappears, and the support workflow doesn't change.",
 "Ce que ça change": "What it changes",
 "Trois gains immédiats": "Three immediate wins",
 "ligne de code": "lines of code",
-"Coût de développement supprimé": "No more development cost",
-"Publier un article ne mobilise plus l'équipe produit — le support est autonome.": "Publishing an article no longer ties up the product team — support is autonomous.",
-"vélocité": "velocity",
+"Publier un article ne mobilise plus l'équipe produit : le support est autonome.": "Publishing an article no longer ties up the product team: support is autonomous.",
 "Sortie accélérée": "Faster release",
 "Les articles paraissent dès qu'ils sont écrits, sans attendre un déploiement.": "Articles go live as soon as they're written, without waiting for a deployment.",
-"même outil": "same tool",
-"Flow support inchangé": "Support workflow unchanged",
+"Même outil": "Same tool",
 "Le support est déjà sur Notion : aucune nouvelle habitude à prendre.": "Support already works in Notion: no new habits to learn.",
 "Accéléré par l'IA": "Boosted by AI",
 "Rédigé et publié avec Claude & Codex": "Written and published with Claude & Codex",
-"Connectés à Notion, ils écrivent, mettent en forme et publient. Le support pilote, l'IA exécute.": "Connected to Notion, they write, format and publish. Support steers, the AI executes.",
-"Notion reste la source unique de vérité.": "Notion remains the single source of truth.",
 "Rédaction assistée": "Assisted writing",
-"Un prompt suffit : un article structuré, prêt à lire.": "One prompt is enough: a structured article, ready to read.",
+": un prompt suffit pour un article structuré, prêt à lire.": ": one prompt is enough for a structured article, ready to read.",
 "Mise en forme automatique": "Automatic formatting",
-"Titres, callouts, liens — la mise en page Notion gérée par l'IA.": "Headings, callouts, links — the Notion layout handled by AI.",
+": titres, callouts et liens, gérés par l'IA.": ": headings, callouts and links, handled by AI.",
 "Publication directe": "Direct publishing",
-"Créé et publié dans Notion, donc live dans l'app.": "Created and published in Notion, so it's live in the app.",
+": créé et publié dans Notion, donc live dans l'app.": ": created and published in Notion, so it's live in the app.",
+"Le support pilote, l'IA exécute. Notion reste la source unique de vérité.": "Support steers, the AI executes. Notion remains the single source of truth.",
 "L'effet de levier": "The leverage effect",
 "Une base de connaissance métier, partagée": "A shared business knowledge base",
-"Toutes les équipes travaillent déjà dans Notion, sur un espace commun. On ouvre la lecture à tous — édition protégée.": "Every team already works in Notion, in a shared workspace. We open read access to everyone — editing stays protected.",
-"une même source, fiable, pour l'app et pour les équipes.": "one reliable source, for the app and for the teams.",
 "Déjà adopté": "Already adopted",
-"Chaque équipe utilise Notion au quotidien : aucune adoption à forcer.": "Every team uses Notion daily: no adoption to push.",
+": chaque équipe utilise Notion au quotidien.": ": every team uses Notion daily.",
 "Ouvert en lecture": "Open for reading",
-"L'espace est accessible à tout le monde dans l'entreprise.": "The workspace is accessible to everyone in the company.",
+": tout le monde dans l'entreprise peut consulter.": ": everyone in the company can read it.",
 "Édition protégée": "Protected editing",
-"Les droits Notion garantissent que seuls les référents modifient le contenu.": "Notion permissions ensure only the owners can edit the content.",
-"L'impact — en résumé": "The impact — in short",
+": seuls les référents modifient le contenu.": ": only the owners can edit the content.",
+"une même source fiable, pour l'app et pour les équipes.": "one reliable source, for the app and for the teams.",
+"L'impact, en résumé": "The impact, in short",
 "Avant / Maintenant": "Before / Now",
 "Avant": "Before",
 "Maintenant": "Now",
 "Intégration développeur requise": "Developer integration required",
 "Délai avant chaque publication": "Delay before every release",
 "Double saisie support ↔ produit": "Double entry support ↔ product",
-"Connaissance dispersée, non partagée": "Knowledge scattered, not shared",
+"Connaissance dispersée": "Scattered knowledge",
 "Publication en autonomie, sans dev": "Self-serve publishing, no dev",
 "Article live dès qu'il est écrit": "Article live as soon as it's written",
 "Notion = source unique de vérité": "Notion = single source of truth",
-"Base de connaissance métier partagée": "Shared business knowledge base",
-"Notion + IA": "Notion + AI",
-"= un support plus rapide, plus autonome, sur une connaissance métier partagée.": "= faster, more autonomous support, built on shared business knowledge.",
-"naviguer": "navigate",
-"plein écran": "fullscreen",
-"langue": "language",
-"Langue (L)": "Language (L)"
-};
-let lang='fr';
+"Connaissance métier partagée": "Shared business knowledge",
+"Notion + IA = un support plus rapide, plus autonome, sur une connaissance métier partagée.": "Notion + AI = faster, more autonomous support, built on shared business knowledge.",
+"Précédent": "Previous",
+"Suivant": "Next",
+"Musique (M)": "Music (M)",
+"Langue (L)": "Language (L)",
+"Couper la musique": "Mute music",
+"Remettre la musique": "Unmute music",
+"Lecture / pause": "Play / pause",
+"Revoir": "Replay",
+"Position dans le film": "Film position"
+};let lang='fr';
 const tr=s=>lang==='en'?(I18N[s]??s):s;
-const langBtn=document.getElementById('lang');
 function applyLang(l){
-  lang=l;document.documentElement.lang=l;
-  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  lang=l;document.documentElement.lang=l;document.body.classList.toggle('en',l==='en');
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style,pre')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
   for(let n;(n=walker.nextNode());){
     n.frText??=n.nodeValue;const en=I18N[n.frText.replace(/\s+/g,' ').trim()];
-    n.nodeValue=l==='en'&&en!==undefined?n.frText.match(/^\s*/)[0]+en+n.frText.match(/\s*$/)[0]:n.frText;
+    // on garde les espaces autour du texte d'origine, sauf devant une ponctuation
+    n.nodeValue=l==='en'&&en!==undefined?(/^[,.;:!?]/.test(en)?'':n.frText.match(/^\s*/)[0])+en+n.frText.match(/\s*$/)[0]:n.frText;
   }
-  langBtn.frTitle??=langBtn.title;langBtn.title=tr(langBtn.frTitle);
+  document.querySelectorAll('[aria-label],[title]').forEach(el=>{
+    if(el===musicBtn)return;
+    el.frAttr??={'aria-label':el.getAttribute('aria-label'),title:el.getAttribute('title')};
+    for(const[a,v]of Object.entries(el.frAttr))if(v!==null)el.setAttribute(a,tr(v));
+  });
   document.frTitle??=document.title;document.title=tr(document.frTitle);
-  langBtn.textContent=l==='en'?'FR':'EN';
+  langBtn.textContent=l==='en'?'FR':'EN';musicLabel();
   try{localStorage.setItem('slides-lang',l)}catch{}
 }
+const langBtn=document.getElementById('lang');
 langBtn.onclick=()=>applyLang(lang==='en'?'fr':'en');
 function initialLang(){
   const q=new URLSearchParams(location.search).get('lang');if(q==='en'||q==='fr')return q;
@@ -535,6 +697,31 @@ function initialLang(){
   return navigator.language?.startsWith('fr')?'fr':'en';
 }
 applyLang(initialLang());
+
+/* ---- navigation ---- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0,reels=[];
+function go(i){
+  cur=clamp(i,0,slides.length-1);
+  slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  reels.forEach(r=>r.slide===slides[cur]?r.play(true):r.stop());
+  document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
+  history.replaceState(null,'',`#${cur+1}`);
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+  else if(e.key==='m'||e.key==='M')setMusic(!musicWanted);
+  else if(e.key==='l'||e.key==='L')applyLang(lang==='en'?'fr':'en');
+  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
+});
+let tx0=null;addEventListener('touchstart',e=>tx0=e.touches[0].clientX);addEventListener('touchend',e=>{if(tx0==null)return;const d=e.changedTouches[0].clientX-tx0;if(Math.abs(d)>50)go(cur+(d<0?1:-1));tx0=null});
+
+const start=()=>{reels=[...document.querySelectorAll('canvas[data-scene]')].map((cv,i)=>new Reel(cv,i));reels.forEach(r=>{r.render();r.stop()});go((parseInt(location.hash.slice(1))||1)-1);applyLang(lang);tryAutoplay()};
+Promise.race([document.fonts.load('16px "Patrick Hand"').then(()=>document.fonts.ready),new Promise(r=>setTimeout(r,1500))]).then(start);
 </script>
 </body>
 </html>

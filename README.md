@@ -5,7 +5,7 @@ HTML presentations in French and English, available online via GitHub Pages.
 | Presentation | Link | Folder |
 |---|---|---|
 | **MCP explained with a phone directory**: what an MCP is, illustrated with small stop-motion films (with music). | [Open](https://pikooli.github.io/slide/mcp/) | [`mcp/`](mcp/) |
-| **The FAQ powered by Notion** (Hiway): how the FAQ goes from Notion straight into the app. | [Open](https://pikooli.github.io/slide/notion-support/) | [`notion-support/`](notion-support/) |
+| **The FAQ powered by Notion** (Hiway): how the FAQ goes from Notion straight into the app, with stop-motion films. | [Open](https://pikooli.github.io/slide/notion-support/) | [`notion-support/`](notion-support/) |
 
 Home page listing all presentations: <https://pikooli.github.io/slide/> ([`index.html`](index.html)).
 
