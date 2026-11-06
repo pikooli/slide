@@ -57,17 +57,13 @@ pre .k{color:#ff9e7a}pre .s{color:#b5e48c}pre .f{color:#ffd166}pre .d{color:#9ec
 /* conclusion */
 blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:2.3cqw;line-height:1.3;border-left:.5cqw solid var(--yellow);padding-left:1.4cqw}
 
-/* écran de lancement (si le navigateur bloque le son automatique) */
-.intro{position:absolute;inset:0;z-index:5;display:grid;place-content:center;justify-items:center;gap:1.4cqw;background:rgba(28,23,19,.75)}
-.intro[hidden]{display:none}
-#launch{font:800 2.4cqw Inter,system-ui,sans-serif;padding:1.4cqw 3.2cqw;border:0;border-radius:99px;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 1cqw 2.5cqw rgba(0,0,0,.35)}
-#launch:hover{filter:brightness(1.08)}
-#nomusic{background:none;border:0;color:#e9dcc3;font-family:'Patrick Hand',cursive;font-size:1.6cqw;text-decoration:underline;cursor:pointer}
 
 /* nav */
 .nav{position:absolute;left:5cqw;right:5cqw;bottom:2.2cqw;display:flex;align-items:center;gap:1.4cqw;font-family:'Patrick Hand',cursive;font-size:1.4cqw;color:var(--muted)}
 .nav button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:2.6cqw;height:2.6cqw;font-size:1.3cqw;cursor:pointer}
 .nav button:hover{background:#efe2c8}
+.nav .lang{width:auto;padding:0 .9cqw;font-family:Inter,system-ui,sans-serif;font-size:1cqw;font-weight:800;letter-spacing:.05em}
+body.en .fr,body:not(.en) .en{display:none!important}
 .bar{flex:1;height:.35cqw;background:var(--line);border-radius:9px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
 </style>
@@ -80,7 +76,7 @@ blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:2.3cqw
     <p class="kicker">Présentation</p>
     <h1>Le MCP, expliqué avec un annuaire téléphonique</h1>
     <p class="lead"><b>Model Context Protocol</b> : l'annuaire qui dit à l'IA quels outils existent, comment les appeler et ce qu'ils vont répondre.</p>
-    <p class="hint">← → pour naviguer · clic sur le film pour pause · F plein écran · M musique</p>
+    <p class="hint">← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue</p>
   </div>
   <figure class="reel"><canvas data-scene="titre"></canvas></figure>
 </section>
@@ -165,12 +161,12 @@ blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:2.3cqw
     <p class="kicker">En action</p>
     <h2>« Trouve-moi un plombier pour ce soir »</h2>
     <ol class="steps">
-      <li>L'utilisateur pose sa question.</li>
-      <li>L'IA trouve dans l'annuaire la fiche <code>chercher_plombier</code>.</li>
-      <li>Le MCP client l'appelle en respectant le contrat.</li>
-      <li>Le MCP serveur fait travailler le vrai service.</li>
-      <li>La réponse revient au format prévu (JSON).</li>
-      <li>L'IA répond en langage naturel.</li>
+      <li><span>L'utilisateur pose sa question.</span></li>
+      <li><span>L'IA trouve la fiche <code>chercher_plombier</code> dans l'annuaire.</span></li>
+      <li><span>Le MCP client l'appelle en respectant le contrat.</span></li>
+      <li><span>Le MCP serveur fait travailler le vrai service.</span></li>
+      <li><span>La réponse revient au format prévu (JSON).</span></li>
+      <li><span>L'IA répond en langage naturel.</span></li>
     </ol>
   </div>
   <figure class="reel"><canvas data-scene="scenario"></canvas></figure>
@@ -183,7 +179,7 @@ blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:2.3cqw
   </header>
   <div>
     <p class="cap">On écrit l'outil côté MCP serveur (Python)</p>
-<pre><span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP
+<pre class="fr"><span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP
 
 mcp = FastMCP(<span class="s">"annuaire"</span>)
 
@@ -196,11 +192,24 @@ mcp = FastMCP(<span class="s">"annuaire"</span>)
     <span class="k">return</span> service_plombiers.recherche(ville, urgence)
 
 mcp.run()</pre>
+<pre class="en"><span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP
+
+mcp = FastMCP(<span class="s">"directory"</span>)
+
+<span class="d">@mcp.tool()</span>
+<span class="k">def</span> <span class="f">find_plumber</span>(city: str,
+                 urgent: bool = False) -&gt; list[Plumber]:
+    <span class="s">"""Finds available plumbers.
+    Use for a leak, no running water,
+    or a broken water heater."""</span>
+    <span class="k">return</span> plumber_service.search(city, urgent)
+
+mcp.run()</pre>
     <p class="lead">Le nom, la docstring et les types deviennent <b>automatiquement</b> la fiche de l'annuaire.</p>
   </div>
   <div>
     <p class="cap">La fiche telle que l'IA la lit (tools/list)</p>
-<pre>{ <span class="c">// nom</span>
+<pre class="fr">{ <span class="c">// nom</span>
   <span class="s">"name"</span>: <span class="f">"chercher_plombier"</span>,
   <span class="c">// quand l'appeler</span>
   <span class="s">"description"</span>: <span class="s">"Trouve des plombiers…"</span>,
@@ -215,6 +224,21 @@ mcp.run()</pre>
     <span class="s">"properties"</span>: {
       <span class="s">"nom"</span>: …, <span class="s">"telephone"</span>: …,
       <span class="s">"dispo"</span>: …, <span class="s">"prix"</span>: … } } }</pre>
+<pre class="en">{ <span class="c">// name</span>
+  <span class="s">"name"</span>: <span class="f">"find_plumber"</span>,
+  <span class="c">// when to call it</span>
+  <span class="s">"description"</span>: <span class="s">"Finds available plumbers…"</span>,
+  <span class="c">// what to tell it</span>
+  <span class="s">"inputSchema"</span>: {
+    <span class="s">"properties"</span>: {
+      <span class="s">"city"</span>:   { <span class="s">"type"</span>: <span class="s">"string"</span> },
+      <span class="s">"urgent"</span>: { <span class="s">"type"</span>: <span class="s">"boolean"</span> } },
+    <span class="s">"required"</span>: [<span class="s">"city"</span>] },
+  <span class="c">// what it answers</span>
+  <span class="s">"outputSchema"</span>: {
+    <span class="s">"properties"</span>: {
+      <span class="s">"name"</span>: …, <span class="s">"phone"</span>: …,
+      <span class="s">"availability"</span>: …, <span class="s">"price"</span>: … } } }</pre>
     <p class="lead">Exemple simplifié, juste pour illustrer.</p>
   </div>
 </section>
@@ -239,11 +263,8 @@ mcp.run()</pre>
   <span id="count">1 / 9</span>
   <button id="next" aria-label="Suivant">›</button>
   <button id="music" aria-label="Couper la musique" title="Musique (M)">🔊</button>
+  <button id="lang" class="lang" title="Langue (L)">EN</button>
 </nav>
-<div id="intro" class="intro" hidden>
-  <button id="launch">▶ Lancer la présentation</button>
-  <button id="nomusic">ou démarrer sans musique</button>
-</div>
 </main>
 
 <script>
@@ -268,11 +289,29 @@ function cut(x,y,path,fill,o={}){
   if(o.stroke!==false){c.lineWidth=o.lw||2;c.strokeStyle=o.stroke||INK;c.lineJoin='round';c.stroke()}
   c.restore();
 }
+// Dans les films, les mots sont remplacés par des gribouillis : pas de langue à traduire.
+// Restent lisibles : chiffres, symboles, emoji, « MCP » et les lettres seules (A, B, C, P…).
+const RAW=/^[^\p{L}]*$|^(MCP|\p{Lu})$/u;
+function scribble(x,y,w,size){
+  const amp=size*.22,step=Math.max(3,size*.3);
+  c.save();c.strokeStyle=c.fillStyle;c.lineWidth=Math.max(1.2,size*.1);c.lineCap='round';c.beginPath();c.moveTo(x+1,y);
+  for(let px=x+1,k=0;px<x+w-1;px+=step,k++){const nx=Math.min(px+step,x+w-1);c.quadraticCurveTo((px+nx)/2,y+(k%2?-amp:amp)*(.6+rnd()*.4),nx,y+J(amp*.25))}
+  c.stroke();c.restore();
+}
 function T(s,x,y,o={}){
-  const size=o.size||16;
+  const size=o.size||16,align=o.align||'center';
   c.save();c.translate(x+J(.5),y+J(.5));c.rotate((o.rot||0)+J(.01));
-  c.font=`${o.w||400} ${size}px ${o.font||HAND}`;c.fillStyle=o.color||INK;c.textAlign=o.align||'center';c.textBaseline='middle';
-  const L=String(s).split('\n');L.forEach((l,i)=>c.fillText(l,0,(i-(L.length-1)/2)*size*1.18));
+  c.font=`${o.w||400} ${size}px ${o.font||HAND}`;c.fillStyle=o.color||INK;c.textAlign='left';c.textBaseline='middle';
+  const L=String(s).split('\n');
+  L.forEach((l,i)=>{
+    const ly=(i-(L.length-1)/2)*size*1.18,total=c.measureText(l).width;
+    let lx=align==='center'?-total/2:align==='right'?-total:0;
+    for(const tk of l.split(/(\s+)/)){
+      const w=c.measureText(tk).width;
+      if(tk.trim())RAW.test(tk)?c.fillText(tk,lx,ly):scribble(lx,ly,w,size);
+      lx+=w;
+    }
+  });
   c.restore();
 }
 function scaled(x,y,s,fn){c.save();c.translate(x,y);c.scale(s,s);fn();c.restore()}
@@ -538,7 +577,7 @@ SCENES.fin={frames:84,draw(f){
   T('Dupont Plomberie',px,166,{size:13,w:700});
   if(fixing){cut(176,96,()=>R(-4,-22,8,40,3),'#7d8a93',{rot:f%2?.5:-.2});T(f%2?'tac':'tac !',196,82,{size:15,color:'#c0392b'})}
   if(on(f,38,58))bubble(30,40,170,46,'Merci MCP ! 🙌',{tx:30,size:17});
-  if(f>=58){const s=kf(f,[[58,.3],[61,1]]);scaled(320,175,s,()=>{cut(-150,-80,()=>R(0,0,300,160,12),'#2b2118');T('FIN',0,-22,{size:60,color:'#f5c518',w:700});T('Model Context Protocol 🔌',0,38,{size:19,color:'#fff8ec'})})}
+  if(f>=58){const s=kf(f,[[58,.3],[61,1]]);scaled(320,175,s,()=>{cut(-150,-80,()=>R(0,0,300,160,12),'#2b2118');T('🎬',0,-18,{size:58});T('MCP 🔌',0,44,{size:26,color:'#f5c518',w:700})})}
 }};
 
 /* ---- lecteur ---- */
@@ -609,25 +648,143 @@ const Music=(()=>{
   return{start,stop,get on(){return on},get running(){return ctx?.state==='running'}};
 })();
 let musicWanted=true;
-const musicBtn=document.getElementById('music'),intro=document.getElementById('intro');
-function setMusic(want){
-  musicWanted=want;want?Music.start():Music.stop();
-  musicBtn.textContent=want?'🔊':'🔇';musicBtn.setAttribute('aria-label',want?'Couper la musique':'Remettre la musique');
-}
+const musicBtn=document.getElementById('music');
+function musicLabel(){musicBtn.textContent=musicWanted?'🔊':'🔇';musicBtn.setAttribute('aria-label',tr(musicWanted?'Couper la musique':'Remettre la musique'))}
+function setMusic(want){musicWanted=want;want?Music.start():Music.stop();musicLabel()}
 musicBtn.onclick=()=>setMusic(!musicWanted);
-// on tente de lancer le son tout de suite ; si le navigateur le bloque, on affiche l'écran de lancement
+// on lance le son tout de suite ; si le navigateur le bloque, il démarre au premier clic ou à la première touche
 function tryAutoplay(){
   setMusic(true);
-  setTimeout(()=>{if(!Music.running){Music.stop();intro.hidden=false;document.getElementById('launch').focus()}},400);
+  setTimeout(()=>{
+    if(Music.running)return;
+    const first=e=>{
+      if(e.target===musicBtn||e.key==='m'||e.key==='M')return;
+      removeEventListener('pointerdown',first,true);removeEventListener('keydown',first,true);
+      if(musicWanted)setMusic(true);
+    };
+    addEventListener('pointerdown',first,true);addEventListener('keydown',first,true);
+  },400);
 }
-function launch(withMusic){intro.hidden=true;setMusic(withMusic);go(cur)}
-document.getElementById('launch').onclick=()=>launch(true);
-document.getElementById('nomusic').onclick=()=>launch(false);
-addEventListener('keydown',e=>{
-  if(intro.hidden)return;
-  e.preventDefault();e.stopImmediatePropagation();
-  launch(!(e.key==='m'||e.key==='M'));
-},true);
+
+/* ---- langue FR / EN : le français est dans le HTML, ce dictionnaire donne l'anglais ---- */
+const I18N={
+"Le MCP expliqué": "MCP explained",
+"Présentation": "Presentation",
+"Le MCP, expliqué avec un annuaire téléphonique": "MCP, explained with a phone directory",
+": l'annuaire qui dit à l'IA quels outils existent, comment les appeler et ce qu'ils vont répondre.": ": the directory that tells the AI which tools exist, how to call them and what they will answer.",
+"← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue": "← → to navigate · click the film to pause · F fullscreen · M music · L language",
+"Le problème": "The problem",
+"Une IA sait parler… mais elle est enfermée": "An AI can talk… but it's locked in",
+"Elle connaît ce qu'elle a appris,": "It knows what it learned,",
+"pas l'annuaire d'aujourd'hui": "not today's directory",
+"Elle ne peut pas trouver un plombier dispo ce soir, ni prendre rendez-vous.": "It can't find a plumber available tonight, or book an appointment.",
+"Il lui faut un moyen d'accéder à des": "It needs a way to reach",
+"outils externes": "external tools",
+"Avant MCP": "Before MCP",
+"Un câble sur mesure pour chaque duo": "A custom cable for every pair",
+"Chaque assistant IA code": "Every AI assistant builds",
+"son propre connecteur": "its own connector",
+"vers chaque service.": "to every service.",
+"3 IA × 3 services =": "3 AIs × 3 services =",
+"9 intégrations": "9 integrations",
+"à écrire et maintenir.": "to build and maintain.",
+"Avec 10 IA et 100 services : 1 000. Ça ne passe pas à l'échelle.": "With 10 AIs and 100 services: 1,000. It doesn't scale.",
+"La solution": "The solution",
+"MCP = un annuaire au format standard": "MCP = a directory in a standard format",
+"Un protocole": "An",
+"standard et ouvert": "open, standard",
+", publié par Anthropic fin 2024. On le surnomme « l'USB‑C de l'IA ».": " protocol, released by Anthropic in late 2024. People call it “the USB‑C of AI”.",
+"Chaque service publie": "Each service publishes its directory (its MCP server)",
+"une seule fois": "just once",
+"son annuaire (son MCP serveur), toujours avec la même mise en page.": ", always with the same layout.",
+"N'importe quelle IA compatible sait donc le lire, sans connecteur sur mesure.": "So any compatible AI can read it, with no custom connector.",
+"6 branchements": "6 connections",
+"au lieu de 9. Avec 10 IA et 100 services : 110 au lieu de 1 000.": "instead of 9. With 10 AIs and 100 services: 110 instead of 1,000.",
+"Les acteurs": "The players",
+"Qui fait quoi ?": "Who does what?",
+"L'application que vous utilisez (Claude, un éditeur de code…). Elle contient le modèle d'IA.": "The app you use (Claude, a code editor…). It contains the AI model.",
+"Il consulte l'annuaire pour le compte de l'IA : il demande la liste des fiches, puis passe les appels.": "It looks things up in the directory on the AI's behalf: it asks for the list of entries, then makes the calls.",
+"MCP serveur = l'annuaire": "MCP server = the directory",
+"Il publie les fiches (outils, contrats, formats de réponse) et transmet les appels au vrai service.": "It publishes the entries (tools, contracts, response formats) and passes calls on to the real service.",
+"Le MCP serveur = l'annuaire": "The MCP server = the directory",
+"Chaque fiche décrit un outil": "Each entry describes a tool",
+"Nom": "Name",
+"quel outil appeler": "which tool to call",
+"chercher_plombier": "find_plumber",
+"quand l'utiliser": "when to use it",
+"Fuite, panne d'eau, chauffe-eau…": "Leak, no running water, water heater…",
+"Contrat d'entrée": "Input contract",
+"ce qu'il faut fournir": "what to provide",
+"ville (obligatoire), urgence (oui/non).": "city (required), urgent (yes/no).",
+"Format de réponse": "Response format",
+"ce qui revient": "what comes back",
+"nom, téléphone, dispo, prix.": "name, phone, availability, price.",
+"Au branchement, l'IA lit tout l'annuaire : elle": "When it connects, the AI reads the whole directory: it",
+"découvre seule": "discovers on its own",
+"ce qui est possible et comment le demander.": "what's possible and how to ask for it.",
+"En action": "In action",
+"« Trouve-moi un plombier pour ce soir »": "“Find me a plumber for tonight”",
+"L'utilisateur pose sa question.": "The user asks their question.",
+"L'IA trouve la fiche": "The AI finds the entry",
+"dans l'annuaire.": "in the directory.",
+"Le MCP client l'appelle en respectant le contrat.": "The MCP client calls it, following the contract.",
+"Le MCP serveur fait travailler le vrai service.": "The MCP server gets the real service to do the work.",
+"La réponse revient au format prévu (JSON).": "The answer comes back in the agreed format (JSON).",
+"L'IA répond en langage naturel.": "The AI replies in plain language.",
+"Sous le capot": "Under the hood",
+"À quoi ça ressemblerait en vrai": "What it would look like for real",
+"On écrit l'outil côté MCP serveur (Python)": "We write the tool on the MCP server side (Python)",
+"Le nom, la docstring et les types deviennent": "The name, docstring and types",
+"automatiquement": "automatically",
+"la fiche de l'annuaire.": "become the directory entry.",
+"La fiche telle que l'IA la lit (tools/list)": "The entry as the AI reads it (tools/list)",
+"Exemple simplifié, juste pour illustrer.": "Simplified example, for illustration only.",
+"À retenir": "Key takeaway",
+"En une phrase": "In one sentence",
+"Le MCP serveur, c'est l'annuaire de l'IA : quels outils existent, comment les appeler, et ce qu'ils vont répondre.": "The MCP server is the AI's phone directory: which tools exist, how to call them, and what they will answer.",
+"Host · MCP client · MCP serveur": "Host · MCP client · MCP server",
+": l'appli, celui qui consulte, l'annuaire.": ": the app, the one who looks things up, the directory.",
+"Une fiche": "One entry",
+"= nom, description, contrat d'entrée, format de réponse.": "= name, description, input contract, response format.",
+"Agenda, Notion, GitHub, base de données…": "Calendar, Notion, GitHub, databases…",
+"même format d'annuaire partout": "the same directory format everywhere",
+"Précédent": "Previous",
+"Suivant": "Next",
+"Musique (M)": "Music (M)",
+"Langue (L)": "Language (L)",
+"Couper la musique": "Mute music",
+"Remettre la musique": "Unmute music",
+"Lecture / pause": "Play / pause",
+"Revoir": "Replay",
+"Position dans le film": "Film position"
+};
+let lang='fr';
+const tr=s=>lang==='en'?(I18N[s]??s):s;
+function applyLang(l){
+  lang=l;document.documentElement.lang=l;document.body.classList.toggle('en',l==='en');
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style,pre')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  for(let n;(n=walker.nextNode());){
+    n.frText??=n.nodeValue;const en=I18N[n.frText.replace(/\s+/g,' ').trim()];
+    // on garde les espaces autour du texte d'origine, sauf devant une ponctuation
+    n.nodeValue=l==='en'&&en!==undefined?(/^[,.;:!?]/.test(en)?'':n.frText.match(/^\s*/)[0])+en+n.frText.match(/\s*$/)[0]:n.frText;
+  }
+  document.querySelectorAll('[aria-label],[title]').forEach(el=>{
+    if(el===musicBtn)return;
+    el.frAttr??={'aria-label':el.getAttribute('aria-label'),title:el.getAttribute('title')};
+    for(const[a,v]of Object.entries(el.frAttr))if(v!==null)el.setAttribute(a,tr(v));
+  });
+  document.frTitle??=document.title;document.title=tr(document.frTitle);
+  langBtn.textContent=l==='en'?'FR':'EN';musicLabel();
+  try{localStorage.setItem('slides-lang',l)}catch{}
+}
+const langBtn=document.getElementById('lang');
+langBtn.onclick=()=>applyLang(lang==='en'?'fr':'en');
+function initialLang(){
+  const q=new URLSearchParams(location.search).get('lang');if(q==='en'||q==='fr')return q;
+  try{const saved=localStorage.getItem('slides-lang');if(saved)return saved}catch{}
+  return navigator.language?.startsWith('fr')?'fr':'en';
+}
+applyLang(initialLang());
 
 /* ---- navigation ---- */
 const slides=[...document.querySelectorAll('.slide')];let cur=0,reels=[];
@@ -646,11 +803,12 @@ addEventListener('keydown',e=>{
   else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
   else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
   else if(e.key==='m'||e.key==='M')setMusic(!musicWanted);
+  else if(e.key==='l'||e.key==='L')applyLang(lang==='en'?'fr':'en');
   else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
 });
 let tx0=null;addEventListener('touchstart',e=>tx0=e.touches[0].clientX);addEventListener('touchend',e=>{if(tx0==null)return;const d=e.changedTouches[0].clientX-tx0;if(Math.abs(d)>50)go(cur+(d<0?1:-1));tx0=null});
 
-const start=()=>{reels=[...document.querySelectorAll('canvas[data-scene]')].map((cv,i)=>new Reel(cv,i));reels.forEach(r=>{r.render();r.stop()});go((parseInt(location.hash.slice(1))||1)-1);tryAutoplay()};
+const start=()=>{reels=[...document.querySelectorAll('canvas[data-scene]')].map((cv,i)=>new Reel(cv,i));reels.forEach(r=>{r.render();r.stop()});go((parseInt(location.hash.slice(1))||1)-1);applyLang(lang);tryAutoplay()};
 Promise.race([document.fonts.load('16px "Patrick Hand"').then(()=>document.fonts.ready),new Promise(r=>setTimeout(r,1500))]).then(start);
 </script>
 </body>

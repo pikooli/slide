@@ -143,6 +143,8 @@ body{font-family:var(--sans); background:#e9e7df; overflow:hidden; -webkit-font-
 .dots{position:fixed; top:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:5}
 .dots i{width:7px; height:7px; border-radius:50%; background:#cbc9bf; cursor:pointer; transition:.2s}
 .dots i.on{background:var(--accent); width:20px; border-radius:4px}
+.langbtn{position:fixed;top:10px;right:14px;z-index:6;font:500 12px var(--sans);letter-spacing:.08em;background:#fff;border:1px solid #d9d7cd;border-radius:99px;padding:6px 12px;color:#78766d;cursor:pointer}
+.langbtn:hover{color:var(--ink)}
 @media(max-width:700px){.hint{display:none}}
 </style>
 </head>
@@ -387,7 +389,8 @@ body{font-family:var(--sans); background:#e9e7df; overflow:hidden; -webkit-font-
 
 </div></div>
 
-<div class="hint"><span><kbd>←</kbd> <kbd>→</kbd> naviguer</span><span><kbd>F</kbd> plein écran</span></div>
+<div class="hint"><span><kbd>←</kbd> <kbd>→</kbd> naviguer</span><span><kbd>F</kbd> plein écran</span><span><kbd>L</kbd> langue</span></div>
+<button id="lang" class="langbtn" title="Langue (L)">EN</button>
 <div class="bar-wrap"><div class="bar-fill" id="barfill"></div></div>
 
 <script>
@@ -411,10 +414,127 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1);}
   else if(e.key==='Home')go(0);
   else if(e.key==='End')go(slides.length-1);
+  else if(e.key==='l'||e.key==='L')applyLang(lang==='en'?'fr':'en');
   else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
 });
 stage.addEventListener('click',e=>{const r=stage.getBoundingClientRect();go(i+((e.clientX-r.left)<r.width*0.32?-1:1));});
 go(0);
+
+/* langue FR / EN : le français est dans le HTML, ce dictionnaire donne l'anglais */
+const I18N={
+"La FAQ propulsée par Notion — Hiway": "The FAQ powered by Notion — Hiway",
+"La FAQ propulsée": "The FAQ powered",
+"par Notion": "by Notion",
+"Des articles d'aide publiés directement dans l'app, sans coût de développement — rédigés avec l'IA, sur une base de connaissance partagée.": "Help articles published straight into the app, with no development cost — written with AI, on a shared knowledge base.",
+"Hiway · Présentation interne · Juillet 2026": "Hiway · Internal presentation · July 2026",
+"Publié · visible dans l'app": "Published · visible in the app",
+"Le point de départ": "Where we started",
+"Avant : un parcours du combattant": "Before: an obstacle course",
+"Publier un article d'aide demandait du développement, deux équipes et des allers-retours — alors que le support rédigeait déjà tout dans Notion.": "Publishing a help article took development work, two teams and back-and-forth — even though support was already writing everything in Notion.",
+"DÉVELOPPEUR": "DEVELOPER",
+"Rédige l'article": "Writes the article",
+"dans Notion (brouillon)": "in Notion (draft)",
+"Transmet au dev": "Hands it to a dev",
+"Code & intègre": "Codes & integrates",
+"dans le produit": "into the product",
+"⟳ allers-retours, corrections": "⟳ back-and-forth, fixes",
+"Publication": "Publishing",
+"(enfin…)": "(finally…)",
+"Des jours de délai…": "Days of delay…",
+"Intégration = développement": "Integration = development",
+"Chaque article devait être recodé et déployé pour apparaître dans l'app.": "Every article had to be re-coded and deployed to show up in the app.",
+"Sortie lente": "Slow release",
+"Les articles attendaient un créneau produit avant d'être publiés.": "Articles waited for a product slot before going live.",
+"Double saisie": "Double entry",
+"Écrit dans Notion, puis re-transcrit côté produit. Deux fois le travail.": "Written in Notion, then re-typed on the product side. Twice the work.",
+"La solution": "The solution",
+"Maintenant : Notion → l'app, directement": "Now: Notion → the app, directly",
+"Le support rédige dans Notion comme d'habitude, change un statut — l'article est affiché tel quel dans l'app, zéro étape de développement.": "Support writes in Notion as usual and changes a status — the article shows up as-is in the app, with zero development steps.",
+"Support rédige": "Support writes",
+"dans Notion": "in Notion",
+"Change le statut": "Changes the status",
+"→ Publié": "→ Published",
+"dans l'app": "in the app",
+"⚡ Quelques minutes": "⚡ A few minutes",
+"Rédaction dans Notion": "Writing in Notion",
+"Le support écrit l'article dans son espace habituel.": "Support writes the article in its usual workspace.",
+"Un statut « publié » suffit. Pas de ticket, pas de déploiement.": "A “published” status is enough. No ticket, no deployment.",
+"Live dans l'app": "Live in the app",
+"L'article est servi depuis Notion, visible par les utilisateurs.": "The article is served from Notion and visible to users.",
+"Résultat :": "Result:",
+"le coût de dev pour intégrer un article disparaît, et le flow du support ne change pas.": "the dev cost of integrating an article disappears, and the support workflow doesn't change.",
+"Ce que ça change": "What it changes",
+"Trois gains immédiats": "Three immediate wins",
+"ligne de code": "lines of code",
+"Coût de développement supprimé": "No more development cost",
+"Publier un article ne mobilise plus l'équipe produit — le support est autonome.": "Publishing an article no longer ties up the product team — support is autonomous.",
+"vélocité": "velocity",
+"Sortie accélérée": "Faster release",
+"Les articles paraissent dès qu'ils sont écrits, sans attendre un déploiement.": "Articles go live as soon as they're written, without waiting for a deployment.",
+"même outil": "same tool",
+"Flow support inchangé": "Support workflow unchanged",
+"Le support est déjà sur Notion : aucune nouvelle habitude à prendre.": "Support already works in Notion: no new habits to learn.",
+"Accéléré par l'IA": "Boosted by AI",
+"Rédigé et publié avec Claude & Codex": "Written and published with Claude & Codex",
+"Connectés à Notion, ils écrivent, mettent en forme et publient. Le support pilote, l'IA exécute.": "Connected to Notion, they write, format and publish. Support steers, the AI executes.",
+"Notion reste la source unique de vérité.": "Notion remains the single source of truth.",
+"Rédaction assistée": "Assisted writing",
+"Un prompt suffit : un article structuré, prêt à lire.": "One prompt is enough: a structured article, ready to read.",
+"Mise en forme automatique": "Automatic formatting",
+"Titres, callouts, liens — la mise en page Notion gérée par l'IA.": "Headings, callouts, links — the Notion layout handled by AI.",
+"Publication directe": "Direct publishing",
+"Créé et publié dans Notion, donc live dans l'app.": "Created and published in Notion, so it's live in the app.",
+"L'effet de levier": "The leverage effect",
+"Une base de connaissance métier, partagée": "A shared business knowledge base",
+"Toutes les équipes travaillent déjà dans Notion, sur un espace commun. On ouvre la lecture à tous — édition protégée.": "Every team already works in Notion, in a shared workspace. We open read access to everyone — editing stays protected.",
+"une même source, fiable, pour l'app et pour les équipes.": "one reliable source, for the app and for the teams.",
+"Déjà adopté": "Already adopted",
+"Chaque équipe utilise Notion au quotidien : aucune adoption à forcer.": "Every team uses Notion daily: no adoption to push.",
+"Ouvert en lecture": "Open for reading",
+"L'espace est accessible à tout le monde dans l'entreprise.": "The workspace is accessible to everyone in the company.",
+"Édition protégée": "Protected editing",
+"Les droits Notion garantissent que seuls les référents modifient le contenu.": "Notion permissions ensure only the owners can edit the content.",
+"L'impact — en résumé": "The impact — in short",
+"Avant / Maintenant": "Before / Now",
+"Avant": "Before",
+"Maintenant": "Now",
+"Intégration développeur requise": "Developer integration required",
+"Délai avant chaque publication": "Delay before every release",
+"Double saisie support ↔ produit": "Double entry support ↔ product",
+"Connaissance dispersée, non partagée": "Knowledge scattered, not shared",
+"Publication en autonomie, sans dev": "Self-serve publishing, no dev",
+"Article live dès qu'il est écrit": "Article live as soon as it's written",
+"Notion = source unique de vérité": "Notion = single source of truth",
+"Base de connaissance métier partagée": "Shared business knowledge base",
+"Notion + IA": "Notion + AI",
+"= un support plus rapide, plus autonome, sur une connaissance métier partagée.": "= faster, more autonomous support, built on shared business knowledge.",
+"naviguer": "navigate",
+"plein écran": "fullscreen",
+"langue": "language",
+"Langue (L)": "Language (L)"
+};
+let lang='fr';
+const tr=s=>lang==='en'?(I18N[s]??s):s;
+const langBtn=document.getElementById('lang');
+function applyLang(l){
+  lang=l;document.documentElement.lang=l;
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  for(let n;(n=walker.nextNode());){
+    n.frText??=n.nodeValue;const en=I18N[n.frText.replace(/\s+/g,' ').trim()];
+    n.nodeValue=l==='en'&&en!==undefined?n.frText.match(/^\s*/)[0]+en+n.frText.match(/\s*$/)[0]:n.frText;
+  }
+  langBtn.frTitle??=langBtn.title;langBtn.title=tr(langBtn.frTitle);
+  document.frTitle??=document.title;document.title=tr(document.frTitle);
+  langBtn.textContent=l==='en'?'FR':'EN';
+  try{localStorage.setItem('slides-lang',l)}catch{}
+}
+langBtn.onclick=()=>applyLang(lang==='en'?'fr':'en');
+function initialLang(){
+  const q=new URLSearchParams(location.search).get('lang');if(q==='en'||q==='fr')return q;
+  try{const saved=localStorage.getItem('slides-lang');if(saved)return saved}catch{}
+  return navigator.language?.startsWith('fr')?'fr':'en';
+}
+applyLang(initialLang());
 </script>
 </body>
 </html>

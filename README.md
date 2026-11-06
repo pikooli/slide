@@ -1,19 +1,20 @@
 # Slides
 
-HTML presentations, available online via GitHub Pages.
+HTML presentations in French and English, available online via GitHub Pages.
 
 | Presentation | Link | File |
 |---|---|---|
-| **MCP explained with a phone directory**: what an MCP is, illustrated with small stop-motion films (with music). In French. | [Open](https://pikooli.github.io/slide/content/mcp.html) | [`content/mcp.html`](content/mcp.html) |
-| **The FAQ powered by Notion** (Hiway): how the FAQ goes from Notion straight into the app. In French. | [Open](https://pikooli.github.io/slide/content/notion-support.html) | [`content/notion-support.html`](content/notion-support.html) |
+| **MCP explained with a phone directory**: what an MCP is, illustrated with small stop-motion films (with music). | [Open](https://pikooli.github.io/slide/content/mcp.html) | [`content/mcp.html`](content/mcp.html) |
+| **The FAQ powered by Notion** (Hiway): how the FAQ goes from Notion straight into the app. | [Open](https://pikooli.github.io/slide/content/notion-support.html) | [`content/notion-support.html`](content/notion-support.html) |
 
 Home page listing all presentations: <https://pikooli.github.io/slide/> ([`index.html`](index.html)).
 
 ## Navigating a presentation
 
 - **← / →** or **Space**: previous / next slide
-- **F**: fullscreen (MCP presentation)
+- **F**: fullscreen
 - **M**: mute / unmute the music (MCP presentation)
+- **L** or the **FR / EN** button: switch language. You can also force it in the link with `?lang=en` or `?lang=fr`.
 
 ## Adding a presentation
 
