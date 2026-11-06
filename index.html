@@ -1,420 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La FAQ propulsée par Notion — Hiway</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slides</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#ffffff; --panel:#f6f5f0; --panel-2:#f1efe8;
-  --ink:#26251f; --sec:#6b6a63; --mut:#9a988f; --bd:rgba(30,28,20,.10);
-  --accent:#1d9e75; --accent-d:#0f6e56; --accent-l:#e7f4ee; --accent-bd:rgba(29,158,117,.35);
-  --red:#b8503f; --red-l:#f7ece7;
-  --dark:#262521; --dark-2:#302f2a; --dark-bd:rgba(255,255,255,.09);
-  --dark-sec:#b7b5ab; --dark-accent:#5cc79f; --dark-accent-bg:#1c3b31;
-  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%}
-body{font-family:var(--sans); background:#e9e7df; overflow:hidden; -webkit-font-smoothing:antialiased; color:var(--ink)}
-.viewport{position:fixed; inset:0; display:flex; align-items:center; justify-content:center}
-.stage{width:1280px; height:720px; position:relative; border-radius:20px; overflow:hidden;
-  box-shadow:0 24px 70px rgba(0,0,0,.30); background:var(--paper); transform-origin:center}
-
-.slide{position:absolute; inset:0; padding:60px 72px; display:flex; flex-direction:column;
-  opacity:0; visibility:hidden; transform:translateY(12px); transition:opacity .4s ease, transform .4s ease}
-.slide.active{opacity:1; visibility:visible; transform:none}
-.slide.light{background:var(--paper)}
-.slide.dark{background:var(--dark); color:#fff}
-
-.pnum{position:absolute; top:34px; right:40px; font-size:12px; letter-spacing:.14em; font-weight:500; z-index:2}
-.light .pnum{color:var(--mut)} .dark .pnum{color:#66655d}
-
-.kick{font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:14px}
-.dark .kick{color:var(--dark-accent)}
-.h{font-size:34px; font-weight:500; line-height:1.12; letter-spacing:-.01em; color:var(--ink)}
-.dark .h{color:#fff}
-.h.big{font-size:58px; line-height:1.05; letter-spacing:-.02em}
-.sub{font-size:18px; line-height:1.5; color:var(--sec); margin-top:14px; font-weight:400}
-.dark .sub{color:var(--dark-sec)}
-
-.head{flex:none}
-.body{flex:1; display:flex; flex-direction:column; min-height:0; margin-top:34px}
-
-/* rows fill vertical space, content vertically centered, real padding */
-.rows{display:flex; flex-direction:column; gap:14px; flex:1}
-.row{display:flex; align-items:center; gap:20px; padding:22px 26px; border-radius:14px; flex:1;
-  background:var(--panel); border:1px solid var(--bd)}
-.row.d{background:var(--dark-2); border:1px solid var(--dark-bd)}
-.rtext{flex:1; min-width:0}
-
-/* two-column: intro + rows */
-.split{display:grid; grid-template-columns:.82fr 1.18fr; gap:52px; flex:1; min-height:0; align-items:center}
-.intro{display:flex; flex-direction:column; justify-content:center}
-.intro .h{font-size:32px}
-
-/* horizontal flow */
-.flow{display:flex; align-items:stretch; flex:1; min-height:0; gap:0}
-.flow .card{flex:1}
-.arrow{display:flex; align-items:center; justify-content:center; width:52px; color:var(--accent)}
-.arrow svg{width:26px; height:26px}
-
-/* cards */
-.card{background:var(--panel); border:1px solid var(--bd); border-radius:14px; padding:28px;
-  display:flex; flex-direction:column; justify-content:center}
-.card.d{background:var(--dark-2); border:1px solid var(--dark-bd)}
-.card.tl{background:var(--accent-l); border:1px solid var(--accent-bd)}
-
-.chip{width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  flex:none; background:var(--accent-l); color:var(--accent-d)}
-.chip svg{width:23px; height:23px}
-.chip.rd{background:var(--red-l); color:var(--red)}
-.chip.dk{background:var(--dark-accent-bg); color:var(--dark-accent)}
-.chip.num{font-size:20px; font-weight:500}
-
-.ct{font-size:19px; font-weight:500; color:var(--ink); margin-bottom:5px}
-.dark .ct{color:#fff}
-.cd{font-size:15px; line-height:1.5; color:var(--sec); font-weight:400}
-.dark .cd{color:var(--dark-sec)}
-.stepn{font-size:12px; font-weight:500; letter-spacing:.13em; color:var(--accent); margin:14px 0 6px}
-
-.statnum{width:92px; flex:none; text-align:center; color:var(--accent)}
-.statnum b{font-size:44px; font-weight:500; line-height:1; display:block}
-.statnum span{font-size:12px; color:var(--mut); font-weight:500; display:block; margin-top:6px; letter-spacing:.02em}
-
-/* comparison columns */
-.cols{display:grid; grid-template-columns:1fr 1fr; gap:20px; flex:1; min-height:0}
-.col{padding:30px 32px; justify-content:center}
-.colh{font-size:13px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px}
-.li{display:flex; align-items:center; gap:13px; font-size:17px; color:var(--ink); padding:13px 0; border-top:1px solid var(--bd)}
-.li:first-of-type{border-top:none}
-.col.tl .li{border-top:1px solid var(--accent-bd)}
-.li svg{width:19px; height:19px; flex:none}
-
-/* summary 2x2 */
-.g2{display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; min-height:0}
-.g2 .card{justify-content:center; padding:26px 28px}
-.g2 .ct{display:flex; align-items:center; gap:10px}
-.g2 .ct svg{width:20px; height:20px; color:var(--dark-accent); flex:none}
-
-.tag{font-size:17px; color:var(--sec); margin-top:22px; flex:none; line-height:1.45}
-.tag b{font-weight:500; color:var(--ink)}
-.intro .tag{margin-top:22px}
-.dark .tag{color:var(--dark-sec)}
-.tag.hero{font-size:19px; color:var(--ink); font-weight:400; text-align:center}
-.tag.hero b{color:var(--ink)} .tag.hero .grn{color:var(--accent-d)}
-
-/* mini help bubbles under diagrams */
-.minis{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; flex:none}
-.mini{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:12px;
-  background:var(--panel); border:1px solid var(--bd)}
-.mini .chip{width:38px; height:38px; border-radius:10px}
-.mini .chip svg{width:19px; height:19px}
-.mini .chip.num{font-size:16px}
-.mini .ct{font-size:15px; margin-bottom:2px}
-.mini .cd{font-size:13px; line-height:1.4}
-.diagwrap{flex:1; display:flex; align-items:center; justify-content:center; min-height:0; margin-bottom:18px}
-
-.foot{font-size:14px; color:var(--mut); flex:none}
-.brandrow{display:flex; align-items:center; gap:16px}
-.logo{width:52px; height:52px; border-radius:14px; background:var(--accent); color:#fff;
-  display:flex; align-items:center; justify-content:center; font-weight:500; font-size:26px}
-
-/* cover */
-.cover{display:grid; grid-template-columns:1.12fr .88fr; gap:44px; flex:1; align-items:center; min-height:0}
-.mock{background:var(--dark-2); border:1px solid var(--dark-bd); border-radius:18px; padding:30px}
-.mock .ln{display:flex; align-items:center; gap:14px; margin:16px 0}
-.mock .dot{width:11px; height:11px; border-radius:50%; background:#4a4a45; flex:none}
-.mock .dot.on{background:var(--dark-accent)}
-.mock .bar{height:10px; border-radius:5px; background:#3c3b36}
-.mock .bar.on{background:#57564f}
-.mock .pill{margin-top:22px; background:var(--dark-accent-bg); border:1px solid #2a5346; border-radius:10px;
-  padding:13px 16px; font-size:14px; color:var(--dark-accent); font-weight:500; display:flex; align-items:center; gap:9px}
-.mock .pill svg{width:17px; height:17px}
-
-/* controls */
-.bar-wrap{position:fixed; left:0; right:0; bottom:0; height:4px; background:rgba(0,0,0,.08)}
-.bar-fill{height:100%; background:var(--accent); width:0; transition:width .4s ease}
-.hint{position:fixed; bottom:15px; left:50%; transform:translateX(-50%); color:#a09e94; font-size:12px; display:flex; gap:14px}
-.hint kbd{background:#fff; border:1px solid #d9d7cd; border-radius:5px; padding:2px 7px; font-size:11px; color:#78766d}
-.dots{position:fixed; top:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:5}
-.dots i{width:7px; height:7px; border-radius:50%; background:#cbc9bf; cursor:pointer; transition:.2s}
-.dots i.on{background:var(--accent); width:20px; border-radius:4px}
-@media(max-width:700px){.hint{display:none}}
+:root{--bg:#f6f4ee;--card:#fff;--ink:#26251f;--sec:#6b6a63;--bd:rgba(30,28,20,.10)}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1b18;--card:#262521;--ink:#f3f1ea;--sec:#b7b5ab;--bd:rgba(255,255,255,.09)}}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:72px 16px}
+main{max-width:860px;margin:0 auto}
+.kick{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--sec)}
+h1{font-size:40px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+.lead{color:var(--sec);font-size:17px;line-height:1.5;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:40px}
+a.card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:16px;overflow:hidden;transition:transform .2s,box-shadow .2s}
+a.card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.12)}
+a.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.cover{height:150px;display:grid;place-items:center;font-size:56px}
+.mcp{--accent:#d97757}.mcp .cover{background:#efe4cf}
+.notion{--accent:#1d9e75}.notion .cover{background:#e7f4ee}
+.txt{padding:22px 24px 24px;display:flex;flex-direction:column;gap:8px;flex:1}
+.tag{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h2{font-size:21px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.txt p{color:var(--sec);font-size:15px;line-height:1.5;flex:1}
+.go{margin-top:8px;font-weight:500;font-size:15px;color:var(--accent)}
+footer{margin-top:48px;color:var(--sec);font-size:13px}
+@media (prefers-color-scheme:dark){.mcp .cover{background:#3a3125}.notion .cover{background:#1c3b31}}
 </style>
 </head>
 <body>
-<div class="dots" id="dots"></div>
-<div class="viewport"><div class="stage" id="stage">
+<main>
+  <p class="kick">Présentations</p>
+  <h1>Slides</h1>
+  <p class="lead">Choisis une présentation. Navigation avec ← → ou Espace.</p>
 
-  <!-- 1 · COVER -->
-  <section class="slide light active">
-    <span class="pnum">01 / 07</span>
-    <div class="cover">
-      <div>
-        <div class="brandrow" style="margin-bottom:36px"><div class="logo">N</div><span class="kick" style="margin:0">Notion × Support</span></div>
-        <h1 class="h big">La FAQ propulsée<br>par Notion</h1>
-        <p class="sub" style="margin-top:24px">Des articles d'aide publiés directement dans l'app, sans coût de développement — rédigés avec l'IA, sur une base de connaissance partagée.</p>
-        <div class="foot" style="margin-top:40px">Hiway · pascal zhang · Juillet 2026</div>
+  <div class="grid">
+    <a class="card mcp" href="content/mcp.html">
+      <div class="cover" aria-hidden="true">📒</div>
+      <div class="txt">
+        <span class="tag">9 slides · stop-motion · musique</span>
+        <h2>Le MCP expliqué avec un annuaire téléphonique</h2>
+        <p>Ce qu'est un MCP, à travers un exemple simple : trouver un plombier. Le MCP serveur, c'est l'annuaire de l'IA.</p>
+        <span class="go">Ouvrir la présentation →</span>
       </div>
-      <div class="mock">
-        <div class="ln"><span class="dot on"></span><span class="bar on" style="width:78%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:60%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:70%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:55%"></span></div>
-        <div class="ln"><span class="dot"></span><span class="bar" style="width:64%"></span></div>
-        <div class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Publié · visible dans l'app</div>
+    </a>
+    <a class="card notion" href="content/notion-support.html">
+      <div class="cover" aria-hidden="true">💬</div>
+      <div class="txt">
+        <span class="tag">7 slides · Hiway</span>
+        <h2>La FAQ propulsée par Notion</h2>
+        <p>Comment la FAQ passe directement de Notion à l'app, et ce que ça change.</p>
+        <span class="go">Ouvrir la présentation →</span>
       </div>
-    </div>
-  </section>
+    </a>
+  </div>
 
-  <!-- 2 · CONSTAT + WORKFLOW AVANT -->
-  <section class="slide light">
-    <span class="pnum">02 / 07</span>
-    <div class="head">
-      <p class="kick">Le point de départ</p>
-      <h2 class="h">Avant : un parcours du combattant</h2>
-      <p class="sub">Publier un article d'aide demandait du développement, deux équipes et des allers-retours — alors que le support rédigeait déjà tout dans Notion.</p>
-    </div>
-    <div class="body" style="margin-top:24px">
-      <div class="diagwrap">
-        <svg viewBox="0 0 1060 320" xmlns="http://www.w3.org/2000/svg" fill="none" style="width:100%;max-height:100%">
-  <defs>
-    <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M1,1.5 L8,5 L1,8.5" fill="none" stroke="#b8503f" stroke-width="1.6" stroke-linejoin="round"/>
-    </marker>
-  </defs>
-  <!-- Role labels -->
-  <text x="130" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="500" fill="#b8503f" letter-spacing=".14em">SUPPORT</text>
-  <text x="670" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="500" fill="#b8503f" letter-spacing=".14em">DÉVELOPPEUR</text>
-
-  <!-- Box 1: Rédige l'article -->
-  <rect x="30" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="130" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Rédige l'article</text>
-  <text x="130" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">dans Notion (brouillon)</text>
-
-  <!-- Arrow 1→2 -->
-  <line x1="235" y1="90" x2="278" y2="90" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 2: Transmet au dev -->
-  <rect x="290" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="390" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Transmet au dev</text>
-  <text x="390" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">ticket, Slack, email…</text>
-
-  <!-- Forward arrow 2→3 -->
-  <line x1="495" y1="78" x2="558" y2="78" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 3: Dev code -->
-  <rect x="570" y="44" width="200" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="670" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Code &amp; intègre</text>
-  <text x="670" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b6a63">dans le produit</text>
-
-  <!-- Return curve 3→2 (dashed) -->
-  <path d="M665,140 C665,206 395,206 395,140" stroke="#b8503f" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#ahr)"/>
-  <text x="530" y="216" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#b8503f" font-style="italic">⟳ allers-retours, corrections</text>
-
-  <!-- Arrow 3→4 -->
-  <line x1="775" y1="90" x2="828" y2="90" stroke="#b8503f" stroke-width="1.5" marker-end="url(#ahr)"/>
-
-  <!-- Box 4: Publication -->
-  <rect x="840" y="44" width="190" height="92" rx="14" fill="#f7ece7" stroke="#b8503f" stroke-width="1.5"/>
-  <text x="935" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Publication</text>
-  <text x="935" y="102" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#b8503f" font-style="italic">(enfin…)</text>
-
-  <!-- Bottom: clock + label -->
-  <circle cx="440" cy="285" r="13" stroke="#b8503f" stroke-width="1.4" fill="none"/>
-  <path d="M440,276 L440,285 L447,289" stroke="#b8503f" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-  <text x="530" y="291" text-anchor="middle" font-family="Inter,sans-serif" font-size="17" font-weight="500" fill="#b8503f">Des jours de délai…</text>
-</svg>
-      </div>
-      <div class="minis">
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18 22 12 16 6"/><path d="M8 6 2 12 8 18"/></svg></div><div class="rtext"><div class="ct">Intégration = développement</div><div class="cd">Chaque article devait être recodé et déployé pour apparaître dans l'app.</div></div></div>
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="rtext"><div class="ct">Sortie lente</div><div class="cd">Les articles attendaient un créneau produit avant d'être publiés.</div></div></div>
-        <div class="mini"><div class="chip rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></div><div class="rtext"><div class="ct">Double saisie</div><div class="cd">Écrit dans Notion, puis re-transcrit côté produit. Deux fois le travail.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3 · SOLUTION + WORKFLOW APRÈS -->
-  <section class="slide light">
-    <span class="pnum">03 / 07</span>
-    <div class="head">
-      <p class="kick">La solution</p>
-      <h2 class="h">Maintenant : Notion → l'app, directement</h2>
-      <p class="sub">Le support rédige dans Notion comme d'habitude, change un statut — l'article est affiché tel quel dans l'app, zéro étape de développement.</p>
-    </div>
-    <div class="body" style="margin-top:24px">
-      <div class="diagwrap">
-        <svg viewBox="0 0 1060 250" xmlns="http://www.w3.org/2000/svg" fill="none" style="width:100%;max-height:100%">
-  <defs>
-    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M1,1.5 L8,5 L1,8.5" fill="none" stroke="#1d9e75" stroke-width="1.6" stroke-linejoin="round"/>
-    </marker>
-  </defs>
-
-  <!-- Box 1: Support rédige dans Notion -->
-  <rect x="70" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="1.5"/>
-  <text x="195" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Support rédige</text>
-  <text x="195" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">dans Notion</text>
-  <!-- Notion icon -->
-  <rect x="87" y="54" width="26" height="26" rx="5" fill="#1d9e75" opacity=".12"/>
-  <text x="100" y="73" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="600" fill="#0f6e56">N</text>
-
-  <!-- Arrow 1→2 -->
-  <line x1="326" y1="88" x2="393" y2="88" stroke="#1d9e75" stroke-width="2" marker-end="url(#ahg)"/>
-
-  <!-- Box 2: Change le statut -->
-  <rect x="405" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="1.5"/>
-  <text x="530" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Change le statut</text>
-  <text x="530" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#0f6e56">→ Publié</text>
-  <!-- Toggle icon -->
-  <rect x="422" y="54" width="30" height="16" rx="8" fill="#1d9e75" opacity=".18"/>
-  <circle cx="445" cy="62" r="5.5" fill="#1d9e75" opacity=".7"/>
-
-  <!-- Arrow 2→3 -->
-  <line x1="661" y1="88" x2="728" y2="88" stroke="#1d9e75" stroke-width="2" marker-end="url(#ahg)"/>
-
-  <!-- Box 3: Article live -->
-  <rect x="740" y="40" width="250" height="96" rx="14" fill="#e7f4ee" stroke="#1d9e75" stroke-width="2"/>
-  <text x="865" y="78" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">Article live</text>
-  <text x="865" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="15" font-weight="500" fill="#26251f">dans l'app</text>
-  <!-- Check icon -->
-  <circle cx="774" cy="66" r="12" fill="#1d9e75" opacity=".12"/>
-  <path d="M768,66 L772,70 L780,62" stroke="#0f6e56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-
-  <!-- Bottom: lightning + label -->
-  <text x="530" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="18" font-weight="500" fill="#1d9e75">⚡  Quelques minutes</text>
-</svg>
-      </div>
-      <div class="minis">
-        <div class="mini"><div class="chip num">1</div><div class="rtext"><div class="ct">Rédaction dans Notion</div><div class="cd">Le support écrit l'article dans son espace habituel.</div></div></div>
-        <div class="mini"><div class="chip num">2</div><div class="rtext"><div class="ct">Publication</div><div class="cd">Un statut « publié » suffit. Pas de ticket, pas de déploiement.</div></div></div>
-        <div class="mini"><div class="chip num">3</div><div class="rtext"><div class="ct">Live dans l'app</div><div class="cd">L'article est servi depuis Notion, visible par les utilisateurs.</div></div></div>
-      </div>
-      <p class="tag" style="margin-top:16px"><b>Résultat :</b> le coût de dev pour intégrer un article disparaît, et le flow du support ne change pas.</p>
-    </div>
-  </section>
-
-  <!-- 4 · GAINS -->
-  <section class="slide light">
-    <span class="pnum">04 / 07</span>
-    <div class="head">
-      <p class="kick">Ce que ça change</p>
-      <h2 class="h">Trois gains immédiats</h2>
-    </div>
-    <div class="body">
-      <div class="rows">
-        <div class="row"><div class="statnum"><b>0</b><span>ligne de code</span></div><div class="rtext"><div class="ct">Coût de développement supprimé</div><div class="cd">Publier un article ne mobilise plus l'équipe produit — le support est autonome.</div></div></div>
-        <div class="row"><div class="statnum"><b>↑</b><span>vélocité</span></div><div class="rtext"><div class="ct">Sortie accélérée</div><div class="cd">Les articles paraissent dès qu'ils sont écrits, sans attendre un déploiement.</div></div></div>
-        <div class="row"><div class="statnum"><b>=</b><span>même outil</span></div><div class="rtext"><div class="ct">Flow support inchangé</div><div class="cd">Le support est déjà sur Notion : aucune nouvelle habitude à prendre.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 · IA -->
-  <section class="slide light">
-    <span class="pnum">05 / 07</span>
-    <div class="split">
-      <div class="intro">
-        <p class="kick">Accéléré par l'IA</p>
-        <h2 class="h">Rédigé et publié avec Claude &amp; Codex</h2>
-        <p class="sub">Connectés à Notion, ils écrivent, mettent en forme et publient. Le support pilote, l'IA exécute.</p>
-        <p class="tag">Notion reste la source unique de vérité.</p>
-      </div>
-      <div class="rows">
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div class="rtext"><div class="ct">Rédaction assistée</div><div class="cd">Un prompt suffit : un article structuré, prêt à lire.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg></div><div class="rtext"><div class="ct">Mise en forme automatique</div><div class="cd">Titres, callouts, liens — la mise en page Notion gérée par l'IA.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M20 16.5A4.5 4.5 0 0 0 17 8h-1.3A7 7 0 1 0 4 14.9"/></svg></div><div class="rtext"><div class="ct">Publication directe</div><div class="cd">Créé et publié dans Notion, donc live dans l'app.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6 · KNOWLEDGE BASE -->
-  <section class="slide light">
-    <span class="pnum">06 / 07</span>
-    <div class="split">
-      <div class="intro">
-        <p class="kick">L'effet de levier</p>
-        <h2 class="h">Une base de connaissance métier, partagée</h2>
-        <p class="sub">Toutes les équipes travaillent déjà dans Notion, sur un espace commun. On ouvre la lecture à tous — édition protégée.</p>
-        <p class="tag"><b>Résultat :</b> une même source, fiable, pour l'app et pour les équipes.</p>
-      </div>
-      <div class="rows">
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="rtext"><div class="ct">Déjà adopté</div><div class="cd">Chaque équipe utilise Notion au quotidien : aucune adoption à forcer.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="rtext"><div class="ct">Ouvert en lecture</div><div class="cd">L'espace est accessible à tout le monde dans l'entreprise.</div></div></div>
-        <div class="row"><div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="rtext"><div class="ct">Édition protégée</div><div class="cd">Les droits Notion garantissent que seuls les référents modifient le contenu.</div></div></div>
-      </div>
-    </div>
-  </section>
-
-
-  
-
-  
-
-  <!-- 9 · AVANT / MAINTENANT -->
-  <section class="slide light">
-    <span class="pnum">07 / 07</span>
-    <div class="head">
-      <p class="kick">L'impact — en résumé</p>
-      <h2 class="h">Avant / Maintenant</h2>
-    </div>
-    <div class="body">
-      <div class="cols">
-        <div class="card col">
-          <div class="colh" style="color:var(--red)">Avant</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Intégration développeur requise</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Délai avant chaque publication</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Double saisie support ↔ produit</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Connaissance dispersée, non partagée</div>
-        </div>
-        <div class="card col tl">
-          <div class="colh" style="color:var(--accent-d)">Maintenant</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Publication en autonomie, sans dev</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Article live dès qu'il est écrit</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Notion = source unique de vérité</div>
-          <div class="li"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Base de connaissance métier partagée</div>
-        </div>
-      </div>
-      <p class="tag hero"><b>Notion + IA</b> <span class="grn">= un support plus rapide, plus autonome, sur une connaissance métier partagée.</span></p>
-    </div>
-  </section>
-
-  
-
-</div></div>
-
-<div class="hint"><span><kbd>←</kbd> <kbd>→</kbd> naviguer</span><span><kbd>F</kbd> plein écran</span></div>
-<div class="bar-wrap"><div class="bar-fill" id="barfill"></div></div>
-
-<script>
-const slides=[...document.querySelectorAll('.slide')];
-const stage=document.getElementById('stage');
-const dotsWrap=document.getElementById('dots');
-const barfill=document.getElementById('barfill');
-let i=0;
-slides.forEach((_,n)=>{const d=document.createElement('i');d.onclick=e=>{e.stopPropagation();go(n);};dotsWrap.appendChild(d);});
-const dots=[...dotsWrap.children];
-function go(n){
-  i=Math.max(0,Math.min(slides.length-1,n));
-  slides.forEach((s,k)=>s.classList.toggle('active',k===i));
-  dots.forEach((d,k)=>d.classList.toggle('on',k===i));
-  barfill.style.width=((i+1)/slides.length*100)+'%';
-}
-function fit(){const s=Math.min(innerWidth/1280*0.97, innerHeight/720*0.93); stage.style.transform='scale('+s+')';}
-addEventListener('resize',fit); fit();
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(i+1);}
-  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1);}
-  else if(e.key==='Home')go(0);
-  else if(e.key==='End')go(slides.length-1);
-  else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
-});
-stage.addEventListener('click',e=>{const r=stage.getBoundingClientRect();go(i+((e.clientX-r.left)<r.width*0.32?-1:1));});
-go(0);
-</script>
+  <footer>Pascal Zhang</footer>
+</main>
 </body>
 </html>

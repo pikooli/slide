@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le MCP expliqué</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Patrick+Hand&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2b2118;--paper:#f6efe2;--accent:#d97757;--yellow:#f5c518;--muted:#6b5a48;--line:#e4d6bd}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#1c1713;color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+.deck{position:absolute;inset:0;margin:auto;width:min(100vw,177.78vh);height:min(56.25vw,100vh);container-type:size;background:var(--paper);overflow:hidden}
+.slide{position:absolute;inset:0;display:grid;grid-template-columns:38% 1fr;gap:4cqw;align-items:center;padding:4.5cqw 5cqw 7cqw;opacity:0;visibility:hidden;transition:opacity .35s}
+.slide.active{opacity:1;visibility:visible}
+.kicker{font-family:'Patrick Hand',cursive;font-size:1.9cqw;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8cqw}
+h1{font-size:4.4cqw;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+h2{font-size:3cqw;line-height:1.1;font-weight:800;letter-spacing:-.015em}
+p,li,dd{font-size:1.55cqw;line-height:1.45}
+.lead{margin-top:1.6cqw;color:var(--muted);font-size:1.75cqw}
+.hint{margin-top:2.4cqw;font-family:'Patrick Hand',cursive;font-size:1.5cqw;color:var(--muted)}
+ul{padding-left:1.3em;display:grid;gap:.9cqw;margin-top:1.8cqw}
+li::marker{color:var(--accent)}
+b{font-weight:800}
+code{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:.88em;background:#efe2c8;padding:.05em .3em;border-radius:.3em}
+dl{margin-top:1.6cqw}
+dt{font-weight:800;font-size:1.65cqw;display:flex;align-items:center;gap:.6cqw}
+dt .tag{font-size:1.15cqw;font-weight:600;color:#fff;padding:.15cqw .7cqw;border-radius:99px}
+dd{margin:.2cqw 0 1.1cqw;color:var(--muted)}
+ol.steps{list-style:none;padding:0;margin-top:1.6cqw;display:grid;gap:.7cqw;counter-reset:s}
+ol.steps li{counter-increment:s;display:flex;gap:.9cqw;align-items:center;opacity:.4;transition:opacity .2s,color .2s}
+ol.steps li::before{content:counter(s);flex:none;width:2.3cqw;height:2.3cqw;border-radius:50%;display:grid;place-items:center;font-size:1.2cqw;font-weight:800;background:var(--line)}
+ol.steps li.done{opacity:.75}
+ol.steps li.on{opacity:1;color:var(--accent);font-weight:700}
+ol.steps li.on::before{background:var(--accent);color:#fff}
+
+/* bobine stop-motion */
+.reel{position:relative;background:#151210;padding:2cqw 1.2cqw 0;border-radius:1cqw;box-shadow:0 1.2cqw 3cqw rgba(40,20,0,.28)}
+.reel::before,.reel::after{content:"";position:absolute;left:1.2cqw;right:1.2cqw;height:.75cqw;background:repeating-linear-gradient(90deg,#3b322a 0 1cqw,transparent 1cqw 2.2cqw);border-radius:2px}
+.reel::before{top:.62cqw}.reel::after{bottom:.62cqw}
+.reel canvas{display:block;width:100%;aspect-ratio:16/9;border-radius:.3cqw;cursor:pointer;background:#efe4cf}
+.reel figcaption{display:flex;align-items:center;gap:.9cqw;color:#e9dcc3;font-family:'Patrick Hand',cursive;font-size:1.35cqw;padding:.7cqw 0 2cqw}
+.reel button{background:none;border:1px solid #6b5a48;color:#e9dcc3;border-radius:99px;width:2.5cqw;height:2.5cqw;font-size:1.1cqw;cursor:pointer;display:grid;place-items:center}
+.reel button:hover{border-color:#e9dcc3}
+.reel .fc{min-width:5.5cqw;text-align:right;font-variant-numeric:tabular-nums}
+.seek{flex:1;-webkit-appearance:none;appearance:none;height:.45cqw;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,0%),#4a3f36 var(--p,0%))}
+.seek::-webkit-slider-thumb{-webkit-appearance:none;width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
+.seek::-moz-range-thumb{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
+
+/* slide code */
+.slide.code{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;row-gap:2cqw}
+.slide.code header{grid-column:1/-1}
+pre{background:#1f1a16;color:#f3e9d6;padding:1.6cqw 1.8cqw;border-radius:1cqw;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:1.08cqw;line-height:1.6;white-space:pre;overflow:hidden}
+pre .k{color:#ff9e7a}pre .s{color:#b5e48c}pre .f{color:#ffd166}pre .d{color:#9ecbff}pre .c{color:#8c7b69;font-style:italic}
+.cap{font-family:'Patrick Hand',cursive;font-size:1.5cqw;color:var(--muted);margin-bottom:.6cqw}
+
+/* conclusion */
+blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:2.3cqw;line-height:1.3;border-left:.5cqw solid var(--yellow);padding-left:1.4cqw}
+
+/* écran de lancement (si le navigateur bloque le son automatique) */
+.intro{position:absolute;inset:0;z-index:5;display:grid;place-content:center;justify-items:center;gap:1.4cqw;background:rgba(28,23,19,.75)}
+.intro[hidden]{display:none}
+#launch{font:800 2.4cqw Inter,system-ui,sans-serif;padding:1.4cqw 3.2cqw;border:0;border-radius:99px;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 1cqw 2.5cqw rgba(0,0,0,.35)}
+#launch:hover{filter:brightness(1.08)}
+#nomusic{background:none;border:0;color:#e9dcc3;font-family:'Patrick Hand',cursive;font-size:1.6cqw;text-decoration:underline;cursor:pointer}
+
+/* nav */
+.nav{position:absolute;left:5cqw;right:5cqw;bottom:2.2cqw;display:flex;align-items:center;gap:1.4cqw;font-family:'Patrick Hand',cursive;font-size:1.4cqw;color:var(--muted)}
+.nav button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:2.6cqw;height:2.6cqw;font-size:1.3cqw;cursor:pointer}
+.nav button:hover{background:#efe2c8}
+.bar{flex:1;height:.35cqw;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+</style>
+</head>
+<body>
+<main class="deck">
+
+<section class="slide">
+  <div>
+    <p class="kicker">Présentation</p>
+    <h1>Le MCP, expliqué avec un annuaire téléphonique</h1>
+    <p class="lead"><b>Model Context Protocol</b> : l'annuaire qui dit à l'IA quels outils existent, comment les appeler et ce qu'ils vont répondre.</p>
+    <p class="hint">← → pour naviguer · clic sur le film pour pause · F plein écran · M musique</p>
+  </div>
+  <figure class="reel"><canvas data-scene="titre"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Le problème</p>
+    <h2>Une IA sait parler… mais elle est enfermée</h2>
+    <ul>
+      <li>Elle connaît ce qu'elle a appris, <b>pas l'annuaire d'aujourd'hui</b>.</li>
+      <li>Elle ne peut pas trouver un plombier dispo ce soir, ni prendre rendez-vous.</li>
+      <li>Il lui faut un moyen d'accéder à des <b>outils externes</b>.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="probleme"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Avant MCP</p>
+    <h2>Un câble sur mesure pour chaque duo</h2>
+    <ul>
+      <li>Chaque assistant IA code <b>son propre connecteur</b> vers chaque service.</li>
+      <li>3 IA × 3 services = <b>9 intégrations</b> à écrire et maintenir.</li>
+      <li>Avec 10 IA et 100 services : 1 000. Ça ne passe pas à l'échelle.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="avant"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">La solution</p>
+    <h2>MCP = un annuaire au format standard</h2>
+    <ul>
+      <li>Un protocole <b>standard et ouvert</b>, publié par Anthropic fin 2024. On le surnomme « l'USB‑C de l'IA ».</li>
+      <li>Chaque service publie <b>une seule fois</b> son annuaire (son MCP serveur), toujours avec la même mise en page.</li>
+      <li>N'importe quelle IA compatible sait donc le lire, sans connecteur sur mesure.</li>
+      <li>3 + 3 = <b>6 branchements</b> au lieu de 9. Avec 10 IA et 100 services : 110 au lieu de 1 000.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="prise"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Les acteurs</p>
+    <h2>Qui fait quoi ?</h2>
+    <dl>
+      <dt>Host</dt>
+      <dd>L'application que vous utilisez (Claude, un éditeur de code…). Elle contient le modèle d'IA.</dd>
+      <dt>MCP client</dt>
+      <dd>Il consulte l'annuaire pour le compte de l'IA : il demande la liste des fiches, puis passe les appels.</dd>
+      <dt>MCP serveur = l'annuaire</dt>
+      <dd>Il publie les fiches (outils, contrats, formats de réponse) et transmet les appels au vrai service.</dd>
+    </dl>
+  </div>
+  <figure class="reel"><canvas data-scene="acteurs"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Le MCP serveur = l'annuaire</p>
+    <h2>Chaque fiche décrit un outil</h2>
+    <dl>
+      <dt><span class="tag" style="background:#e76f51">Nom</span> quel outil appeler</dt>
+      <dd><code>chercher_plombier</code></dd>
+      <dt><span class="tag" style="background:#e9a03b">Description</span> quand l'utiliser</dt>
+      <dd>Fuite, panne d'eau, chauffe-eau…</dd>
+      <dt><span class="tag" style="background:#4f7cac">Contrat d'entrée</span> ce qu'il faut fournir</dt>
+      <dd>ville (obligatoire), urgence (oui/non).</dd>
+      <dt><span class="tag" style="background:#5a9e6f">Format de réponse</span> ce qui revient</dt>
+      <dd>nom, téléphone, dispo, prix.</dd>
+    </dl>
+    <p class="lead">Au branchement, l'IA lit tout l'annuaire : elle <b>découvre seule</b> ce qui est possible et comment le demander.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="fiche"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">En action</p>
+    <h2>« Trouve-moi un plombier pour ce soir »</h2>
+    <ol class="steps">
+      <li>L'utilisateur pose sa question.</li>
+      <li>L'IA trouve dans l'annuaire la fiche <code>chercher_plombier</code>.</li>
+      <li>Le MCP client l'appelle en respectant le contrat.</li>
+      <li>Le MCP serveur fait travailler le vrai service.</li>
+      <li>La réponse revient au format prévu (JSON).</li>
+      <li>L'IA répond en langage naturel.</li>
+    </ol>
+  </div>
+  <figure class="reel"><canvas data-scene="scenario"></canvas></figure>
+</section>
+
+<section class="slide code">
+  <header>
+    <p class="kicker">Sous le capot</p>
+    <h2>À quoi ça ressemblerait en vrai</h2>
+  </header>
+  <div>
+    <p class="cap">On écrit l'outil côté MCP serveur (Python)</p>
+<pre><span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP
+
+mcp = FastMCP(<span class="s">"annuaire"</span>)
+
+<span class="d">@mcp.tool()</span>
+<span class="k">def</span> <span class="f">chercher_plombier</span>(ville: str,
+                      urgence: bool = False) -&gt; list[Plombier]:
+    <span class="s">"""Trouve des plombiers dispo.
+    À utiliser pour une fuite, une panne d'eau,
+    un chauffe-eau."""</span>
+    <span class="k">return</span> service_plombiers.recherche(ville, urgence)
+
+mcp.run()</pre>
+    <p class="lead">Le nom, la docstring et les types deviennent <b>automatiquement</b> la fiche de l'annuaire.</p>
+  </div>
+  <div>
+    <p class="cap">La fiche telle que l'IA la lit (tools/list)</p>
+<pre>{ <span class="c">// nom</span>
+  <span class="s">"name"</span>: <span class="f">"chercher_plombier"</span>,
+  <span class="c">// quand l'appeler</span>
+  <span class="s">"description"</span>: <span class="s">"Trouve des plombiers…"</span>,
+  <span class="c">// ce qu'il faut lui dire</span>
+  <span class="s">"inputSchema"</span>: {
+    <span class="s">"properties"</span>: {
+      <span class="s">"ville"</span>:   { <span class="s">"type"</span>: <span class="s">"string"</span> },
+      <span class="s">"urgence"</span>: { <span class="s">"type"</span>: <span class="s">"boolean"</span> } },
+    <span class="s">"required"</span>: [<span class="s">"ville"</span>] },
+  <span class="c">// ce qu'il répond</span>
+  <span class="s">"outputSchema"</span>: {
+    <span class="s">"properties"</span>: {
+      <span class="s">"nom"</span>: …, <span class="s">"telephone"</span>: …,
+      <span class="s">"dispo"</span>: …, <span class="s">"prix"</span>: … } } }</pre>
+    <p class="lead">Exemple simplifié, juste pour illustrer.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">À retenir</p>
+    <h2>En une phrase</h2>
+    <blockquote>Le MCP serveur, c'est l'annuaire de l'IA : quels outils existent, comment les appeler, et ce qu'ils vont répondre.</blockquote>
+    <ul>
+      <li><b>Host · MCP client · MCP serveur</b> : l'appli, celui qui consulte, l'annuaire.</li>
+      <li><b>Une fiche</b> = nom, description, contrat d'entrée, format de réponse.</li>
+      <li>Agenda, Notion, GitHub, base de données… <b>même format d'annuaire partout</b>.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="fin"></canvas></figure>
+</section>
+
+<nav class="nav">
+  <button id="prev" aria-label="Précédent">‹</button>
+  <div class="bar"><i id="progress"></i></div>
+  <span id="count">1 / 9</span>
+  <button id="next" aria-label="Suivant">›</button>
+  <button id="music" aria-label="Couper la musique" title="Musique (M)">🔊</button>
+</nav>
+<div id="intro" class="intro" hidden>
+  <button id="launch">▶ Lancer la présentation</button>
+  <button id="nomusic">ou démarrer sans musique</button>
+</div>
+</main>
+
+<script>
+/* ============ moteur stop-motion ============ */
+const W=640,H=360,FPS=8,INK='#2b2118';
+const HAND='"Patrick Hand","Chalkboard SE","Comic Sans MS",cursive';
+const MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
+let c,_s=1;
+const seed=n=>{_s=(Math.abs(n|0)%2147483646)+1};
+const rnd=()=>{_s=_s*16807%2147483647;return(_s-1)/2147483646};
+const J=(a=1)=>(rnd()*2-1)*a;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const on=(f,a,b=1e9)=>f>=a&&f<b;
+function kf(f,k){if(f<=k[0][0])return k[0][1];for(let i=1;i<k.length;i++){const[f1,v1]=k[i],[f0,v0]=k[i-1];if(f<=f1)return v0+(v1-v0)*(f-f0)/(f1-f0)}return k[k.length-1][1]}
+
+function R(x,y,w,h,r=8){c.roundRect(x,y,w,h,r)}
+// découpe en papier : ombre portée + léger tremblement à chaque image
+function cut(x,y,path,fill,o={}){
+  c.save();c.translate(x+J(o.jit??.9),y+J(o.jit??.9));c.rotate((o.rot||0)+J(o.wob??.015));
+  if(o.shadow!==false){c.save();c.translate(3,4);c.fillStyle='rgba(70,45,20,.25)';c.beginPath();path();c.fill();c.restore()}
+  c.fillStyle=fill;c.beginPath();path();c.fill();
+  if(o.stroke!==false){c.lineWidth=o.lw||2;c.strokeStyle=o.stroke||INK;c.lineJoin='round';c.stroke()}
+  c.restore();
+}
+function T(s,x,y,o={}){
+  const size=o.size||16;
+  c.save();c.translate(x+J(.5),y+J(.5));c.rotate((o.rot||0)+J(.01));
+  c.font=`${o.w||400} ${size}px ${o.font||HAND}`;c.fillStyle=o.color||INK;c.textAlign=o.align||'center';c.textBaseline='middle';
+  const L=String(s).split('\n');L.forEach((l,i)=>c.fillText(l,0,(i-(L.length-1)/2)*size*1.18));
+  c.restore();
+}
+function scaled(x,y,s,fn){c.save();c.translate(x,y);c.scale(s,s);fn();c.restore()}
+
+const paper=(()=>{const p=document.createElement('canvas');p.width=W*2;p.height=H*2;const g=p.getContext('2d');
+  g.fillStyle='#efe4cf';g.fillRect(0,0,p.width,p.height);
+  for(let i=0;i<16000;i++){g.fillStyle=`rgba(${Math.random()<.5?'90,60,30':'255,255,255'},${Math.random()*.09})`;g.fillRect(Math.random()*p.width,Math.random()*p.height,1+Math.random()*2,1+Math.random()*2)}
+  return p})();
+const vign=(()=>{const p=document.createElement('canvas');p.width=W;p.height=H;const g=p.getContext('2d');
+  const v=g.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.62);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(40,20,0,.32)');g.fillStyle=v;g.fillRect(0,0,W,H);return p})();
+
+function table(){c.fillStyle='#b98654';c.fillRect(0,300,W,60);c.fillStyle='#9c6d40';c.fillRect(0,300,W,4);
+  c.strokeStyle='rgba(80,40,10,.25)';c.lineWidth=1.5;for(let i=0;i<5;i++){c.beginPath();for(let x=0;x<=W;x+=20)c.lineTo(x,312+i*10+Math.sin(x/40+i)*2);c.stroke()}}
+
+/* ---- personnages et accessoires ---- */
+function face(x,y,mood,f){
+  c.save();c.translate(x+J(.4),y+J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2;c.lineCap='round';
+  const blink=f%23===0;
+  for(const ex of[-7,7]){c.beginPath();if(blink){c.moveTo(ex-3,-3);c.lineTo(ex+3,-3);c.stroke()}else{c.arc(ex,-3,mood==='panic'?3.2:2.4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,3,7,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='panic'){c.ellipse(0,9,4,5.5,0,0,7);c.fill();c.beginPath();c.moveTo(-11,-12);c.lineTo(-4,-9);c.moveTo(11,-12);c.lineTo(4,-9);c.stroke()}
+  else{c.moveTo(-5,8);c.lineTo(5,8);c.stroke()}
+  c.restore();
+}
+// origine = entre les pieds
+function person(o={}){
+  const col=o.color||'#4f7cac',skin=o.skin||'#f1c39b',f=o.f||0,w=o.walk?(f%2?1:-1):0;
+  cut(-10+w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  cut(1-w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  const up=o.arms==='up',wave=o.arms==='wave';
+  const la=up?2.7+(f%2?.25:-.1):.28, ra=up?-2.7-(f%2?.1:-.25):wave?-2.3+(f%2?.45:0):-.28;
+  cut(-16,-74,()=>R(-4,0,9,32,4),col,{rot:la});
+  cut(16,-74,()=>R(-5,0,9,32,4),col,{rot:ra});
+  cut(-19,-80,()=>R(0,0,38,54,13),col);
+  if(o.overalls)cut(-13,-62,()=>R(0,0,26,34,5),o.overalls);
+  cut(0,-100,()=>c.arc(0,0,21,0,Math.PI*2),skin);
+  if(o.hair)cut(0,-106,()=>{c.ellipse(0,0,21,13,0,Math.PI,0);c.closePath()},o.hair);
+  if(o.cap){cut(0,-110,()=>{c.ellipse(0,0,21,12,0,Math.PI,0);c.closePath()},o.cap);cut(2,-114,()=>R(0,0,26,6,3),o.cap)}
+  face(0,-98,o.mood||'neutral',f);
+  if(o.mood==='panic'){const d=(f%3)*4;cut(26,-118+d,()=>{c.arc(0,0,4,0,Math.PI);c.lineTo(0,-9);c.closePath()},'#7cc0ec',{lw:1.2,shadow:false})}
+}
+function robot(o={}){
+  const col=o.color||'#d97757',f=o.f||0,mood=o.mood||'neutral';
+  c.save();c.strokeStyle=INK;c.lineWidth=2.5;c.beginPath();c.moveTo(0,-104);c.lineTo(J(1.5),-120);c.stroke();c.restore();
+  cut(0,-122,()=>c.arc(0,0,6,0,7),'#f4c542');
+  cut(-27,-42,()=>R(-8,0,9,26,4),col,{rot:o.wave?2.4+(f%2?.35:0):.2});
+  cut(27,-42,()=>R(-1,0,9,26,4),col,{rot:-.2});
+  cut(-26,-46,()=>R(0,0,52,38,10),col);
+  cut(-15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(-34,-104,()=>R(0,0,68,58,16),col);
+  cut(-25,-97,()=>R(0,0,50,40,10),'#fff8ec',{shadow:false,lw:1.5});
+  c.save();c.translate(J(.4),J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2.5;c.lineCap='round';
+  const blink=f%19===0;
+  for(const ex of[-10,10]){c.beginPath();
+    if(blink){c.moveTo(ex-4,-82);c.lineTo(ex+4,-82);c.stroke()}
+    else if(mood==='happy'){c.arc(ex,-80,4.5,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    else if(mood==='think'){c.arc(ex+3,-86,4,0,7);c.fill()}
+    else{c.arc(ex,-82,4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,-72,6,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='sad'){c.arc(0,-63,6,1.2*Math.PI,1.8*Math.PI);c.stroke()}
+  else if(mood==='think'){c.arc(4,-68,2.5,0,7);c.stroke()}
+  else{c.moveTo(-5,-68);c.lineTo(5,-68);c.stroke()}
+  c.restore();
+  if(o.label)T(o.label,0,-27,{size:14,color:'#fff',w:700});
+}
+function bubble(x,y,w,h,s,o={}){
+  const tx=o.tx??30,td=o.tdx??-8;
+  cut(x,y,()=>{c.moveTo(tx,h-2);c.lineTo(tx+td,h+16);c.lineTo(tx+16,h-2);R(0,0,w,h,14)},o.fill||'#fffdf6');
+  T(s,x+w/2,y+h/2,{size:o.size||15,font:o.font});
+}
+function envelope(x,y,o={}){
+  cut(x-24,y-15,()=>R(0,0,48,30,3),o.color||'#fff3c4');
+  c.save();c.translate(x,y);c.strokeStyle=INK;c.lineWidth=1.5;c.beginPath();c.moveTo(-22,-13);c.lineTo(0,3);c.lineTo(22,-13);c.stroke();c.restore();
+  if(o.label){
+    const size=o.size||12,font=o.mono?MONO:HAND;c.font=`${size}px ${font}`;
+    const L=o.label.split('\n'),lw=Math.max(...L.map(l=>c.measureText(l).width))+16,lh=L.length*size*1.18+10;
+    cut(x-lw/2,y+22,()=>R(0,0,lw,lh,6),'#fffdf6',{lw:1.5});T(o.label,x,y+22+lh/2,{size,font});
+  }
+}
+const ENTRIES=[['Boulangerie Martin','04 72 11 20 30'],['Électricité Rossi','04 78 42 13 08'],['Dupont Plomberie','04 78 55 19 19'],['Serrurerie Lefèvre','04 72 90 01 77'],['Vitrerie Bernard','04 78 63 44 02'],['Taxi Lumière','04 78 00 12 12']];
+function rightPage(sx,y,pw,h,o){
+  const n=o.n??6,step=(h-24)/6;
+  for(let i=0;i<n;i++){const ly=y+14+i*step+step/2;
+    if(o.hl===i){c.fillStyle='rgba(255,214,10,.7)';c.fillRect(sx+5,ly-step/2+2,pw-10,step-4)}
+    if(o.bars){c.fillStyle='rgba(43,33,24,.5)';c.fillRect(sx+10,ly-2,pw*.4+(i*13%20),4);c.fillRect(sx+pw-32,ly-2,22,4)}
+    else{T(ENTRIES[i][0],sx+10,ly,{size:13,align:'left'});T(ENTRIES[i][1],sx+pw-8,ly,{size:12,align:'right',color:'#6b5a48'})}
+  }
+}
+function leftPage(x,y,pw,h,o){
+  if(o.bars){T('P',x+pw/2,y+h/2,{size:h*.5,color:'#e2b21a',w:700});return}
+  T('PROFESSIONNELS',x+pw/2,y+24,{size:15,w:700});T('P',x+pw/2,y+h*.55,{size:h*.42,color:'#e2b21a'});T('Lyon · 69',x+pw/2,y+h-18,{size:13,color:'#6b5a48'});
+}
+function annuaire(x,y,w,h,open,o={}){
+  const sp=x+w/2,pw=w/2,cw=pw*Math.cos(Math.PI*clamp(open,0,1));
+  cut(sp,y,()=>R(0,0,pw,h,4),'#fffdf5');
+  if(open>.5){cut(sp+cw,y-2,()=>R(0,0,-cw,h+4,4),'#e2b21a');rightPage(sp,y,pw,h,o)}
+  if(open>=1){cut(x+4,y,()=>R(0,0,pw-4,h,4),'#fffdf5');leftPage(x+4,y,pw-4,h,o)}
+  if(open<=.5){cut(sp,y-2,()=>R(0,0,Math.max(cw,1),h+4,4),'#f5c518');
+    if(cw>pw*.6){T('ANNUAIRE',sp+cw/2,y+h*.26,{size:Math.min(26,pw*.15),w:700});T('☎',sp+cw/2,y+h*.56,{size:pw*.3});T('pros · Lyon',sp+cw/2,y+h*.86,{size:Math.max(10,pw*.08)})}}
+}
+function loupe(x,y,r=22){c.save();c.translate(x+J(.8),y+J(.8));c.rotate(.2);c.fillStyle='rgba(200,230,255,.35)';c.strokeStyle=INK;c.lineWidth=4;c.beginPath();c.arc(0,0,r,0,7);c.fill();c.stroke();c.lineWidth=7;c.strokeStyle='#7a4b2a';c.beginPath();c.moveTo(r*.72,r*.72);c.lineTo(r*1.9,r*1.9);c.stroke();c.restore()}
+function pipe(){cut(-10,46,()=>R(0,0,170,20,5),'#9aa5ad');cut(140,46,()=>R(0,0,20,64,5),'#9aa5ad');cut(136,102,()=>R(0,0,28,10,3),'#7d8a93')}
+function drop(x,y){cut(x,y,()=>{c.arc(0,0,5,0,Math.PI);c.lineTo(0,-11);c.closePath()},'#5aa9e6',{lw:1.4,shadow:false})}
+function puddle(x,w){cut(x,302,()=>c.ellipse(0,0,w,7,0,0,7),'#7cc0ec',{shadow:false,lw:1.5})}
+function box(x,y,w,h,s,col){cut(x,y,()=>R(0,0,w,h,10),col);T(s,x+w/2,y+h/2,{size:17,w:700})}
+function bez(P,t){const u=1-t;return[0,1].map(k=>u*u*u*P[0][k]+3*u*u*t*P[1][k]+3*u*t*t*P[2][k]+t*t*t*P[3][k])}
+function cable(P,t,col,lw=4){
+  const n=Math.max(2,Math.ceil(40*t)),pts=[];for(let i=0;i<=n;i++)pts.push(bez(P,t*i/n));
+  for(const[dx,dy,cl]of[[3,4,'rgba(70,45,20,.22)'],[0,0,col]]){c.save();c.strokeStyle=cl;c.lineWidth=lw;c.lineCap='round';c.lineJoin='round';c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0]+dx,p[1]+dy):c.moveTo(p[0]+dx,p[1]+dy));c.stroke();c.restore()}
+  const a=pts[pts.length-1],b=pts[pts.length-2];return{x:a[0],y:a[1],ang:Math.atan2(a[1]-b[1],a[0]-b[0])};
+}
+function plug(e,col='#4a4440'){c.save();c.translate(e.x+J(.6),e.y+J(.6));c.rotate(e.ang);c.fillStyle='rgba(70,45,20,.25)';c.fillRect(-15,-7,18,18);c.fillStyle=col;c.strokeStyle=INK;c.lineWidth=2;c.beginPath();R(-18,-9,18,18,4);c.fill();c.stroke();c.strokeStyle='#c9c2b8';c.lineWidth=3;c.beginPath();c.moveTo(0,-4);c.lineTo(9,-4);c.moveTo(0,4);c.lineTo(9,4);c.stroke();c.restore()}
+
+/* ---- les scènes ---- */
+const NODES=[65,175,285], AI_COL=['#d97757','#3fa7a0','#8e6bbf'], SERV=[['📒 Annuaire','#f5c518'],['📅 Agenda','#9ecbff'],['💳 Paiement','#b5e48c']];
+function nodes(f){
+  NODES.forEach((cy,i)=>scaled(60,cy+42,.58,()=>robot({color:AI_COL[i],f:f+i*7,label:'ABC'[i]})));
+  NODES.forEach((cy,i)=>box(510,cy-27,112,54,SERV[i][0],SERV[i][1]));
+}
+const SCENES={};
+SCENES.titre={frames:80,draw(f){
+  table();
+  const open=kf(f,[[0,0],[12,0],[22,1]]),n=clamp(Math.floor((f-22)/4),0,6),hl=f>=54?2:-1;
+  annuaire(110,80,370,210,open,{n,hl});
+  const rx=kf(f,[[0,720],[36,720],[50,565]]);
+  scaled(rx,300,1,()=>robot({f,mood:f>=54?'happy':'think',wave:f>=62&&f<72}));
+  if(f>=46){const ly=80+14+2*31+15.5;loupe(kf(f,[[46,470],[54,400]]),ly,24)}
+  if(f>=58){const s=kf(f,[[58,1.8],[61,1]]);scaled(120,62,s,()=>{cut(-62,-24,()=>R(0,0,124,48,6),'rgba(255,255,255,.0)',{stroke:'#c0392b',lw:4,rot:-.18,shadow:false});T('MCP',0,0,{size:38,color:'#c0392b',w:700,rot:-.18})})}
+}};
+SCENES.probleme={frames:100,draw(f){
+  table();pipe();
+  for(let k=0;k<3;k++){const y=114+((f*14+k*62)%186);if(y<296)drop(151,y)}
+  puddle(150,40+Math.min(f,90)*.9);
+  scaled(205,300,1,()=>person({f,mood:'panic',arms:'up',hair:'#5b3a29'}));
+  // étagère + annuaire inaccessible
+  cut(548,150,()=>R(0,0,88,10,2),'#8a5a3b');
+  cut(570,92,()=>R(0,0,44,58,4),'#f5c518');T('☎',592,112,{size:20});
+  cut(584,128,()=>R(0,0,16,13,3),'#9aa5ad');c.save();c.strokeStyle=INK;c.lineWidth=2.5;c.beginPath();c.arc(592+J(.5),128,5,Math.PI,0);c.stroke();c.restore();
+  scaled(445,300,1,()=>robot({f,mood:f>=72?'sad':'neutral'}));
+  if(on(f,2,46))bubble(170,26,210,58,'Au secours, une fuite !\nIl me faut un plombier !',{tx:28,tdx:-6});
+  if(on(f,46,72))bubble(330,26,220,58,"Je peux t'écrire un poème\nsur les fuites d'eau…",{tx:96});
+  if(f>=72){bubble(330,26,220,58,"…mais je n'ai pas accès\nà l'annuaire 🤷",{tx:96});
+    for(let k=0;k<3;k++)T('?',505+k*20,150+((f+k*2)%4<2?-4:4),{size:26+k*3,color:'#c0392b',w:700})}
+}};
+const WOB=[[-60,40],[30,-50],[80,20],[-40,-70],[20,60],[-80,30],[50,-30],[-20,80],[70,-60]];
+const ORDER=[0,4,8,1,5,6,2,3,7], CCOL=['#c0392b','#2a9d8f','#e9a03b','#6a4c93','#3d6fb6','#d35d9a','#5a9e6f','#8a5a3b','#e76f51'];
+SCENES.avant={frames:90,draw(f){
+  const k=(f-4)/6,full=clamp(Math.floor(k),0,9);
+  for(let m=0;m<Math.min(9,full+1);m++){
+    const t=m<full?1:clamp(k-m,0,1);if(t<=0)continue;
+    const idx=ORDER[m],i=Math.floor(idx/3),j=idx%3,w=WOB[m];
+    const P=[[90,NODES[i]],[230+w[0],NODES[i]+w[1]],[370-w[0],NODES[j]-w[1]],[506,NODES[j]]];
+    const e=cable(P,t,CCOL[m],3.5);
+    if(t===1){const shape=m%3;cut(e.x-12,e.y-8,()=>shape===0?R(0,0,12,16,2):shape===1?c.arc(6,8,8,0,7):(c.moveTo(0,0),c.lineTo(12,8),c.lineTo(0,16),c.closePath()),CCOL[m])}
+  }
+  nodes(f);
+  T(`intégrations sur mesure : ${full}`,320,18,{size:18});
+  if(f>=64){
+    if(f%2){const m=(f*5)%9,idx=ORDER[m],i=Math.floor(idx/3),j=idx%3,w=WOB[m],p=bez([[90,NODES[i]],[230+w[0],NODES[i]+w[1]],[370-w[0],NODES[j]-w[1]],[506,NODES[j]]],.5);T('⚡',p[0],p[1],{size:26})}
+    cut(225,150,()=>R(0,0,190,58,10),'#fffdf6');T('3 × 3 = 9  😵',320,179,{size:26,w:700});
+  }
+}};
+SCENES.prise={frames:90,draw(f){
+  nodes(f);
+  cut(290,40,()=>R(0,0,60,290,14),'#2b2118');
+  'MCP'.split('').forEach((l,i)=>T(l,320,130+i*50,{size:30,color:'#f5c518',w:700}));
+  let n=0;
+  for(let m=0;m<6;m++){
+    const side=m%2,row=Math.floor(m/2),cy=NODES[row],st=6+m*9,t=clamp((f-st)/6,0,1);
+    const hubX=side?350:290;
+    c.fillStyle='#f6efe2';c.fillRect(hubX-(side?0:4)+(side?0:0),cy-8,4,16);
+    if(t<=0)continue;
+    const P=side?[[506,cy],[460,cy+20],[400,cy-20],[hubX+12,cy]]:[[90,cy],[160,cy+20],[220,cy-20],[hubX-12,cy]];
+    const e=cable(P,t,'#3d3530',4);plug(e);
+    if(t===1){n++;if(f-st-6<3)T('clic !',hubX+(side?40:-40),cy-22,{size:16,color:'#c0392b',w:700})}
+  }
+  if(f>=64){
+    c.save();c.shadowColor='#ffd60a';c.shadowBlur=18+(f%2)*10;c.strokeStyle='#ffd60a';c.lineWidth=3;c.beginPath();R(290,40,60,290,14);c.stroke();c.restore();
+    T('3 + 3 = 6 branchements ✨',320,18,{size:20,w:700});
+  }else T(`branchements : ${n}`,320,18,{size:18});
+}};
+SCENES.acteurs={frames:96,draw(f){
+  table();
+  // Host = l'application
+  cut(20,36,()=>R(0,0,250,264,12),'#fffdf6');
+  cut(20,36,()=>R(0,0,250,28,[12,12,0,0]),'#e9dcc3',{shadow:false});
+  T('Host · l\'appli IA',150,50,{size:15,w:700});
+  ['#ff6b5b','#f5c518','#5a9e6f'].forEach((col,i)=>{c.fillStyle=col;c.beginPath();c.arc(36+i*12,50,4,0,7);c.fill()});
+  scaled(80,296,.72,()=>robot({f,mood:on(f,58,86)?'happy':'neutral'}));
+  T('le modèle',80,192,{size:14,color:'#6b5a48'});
+  // Serveur = le guichet de l'annuaire
+  const bx=420,by=96,bw=180,bh=204;
+  cut(bx-12,by,()=>{c.moveTo(0,0);c.lineTo(bw/2+12,-52);c.lineTo(bw+24,0);c.closePath()},'#c8553d');
+  cut(bx,by,()=>R(0,0,bw,bh,4),'#e9c46a');
+  cut(bx+18,by+14,()=>R(0,0,bw-36,44,6),'#2b2118');T('ANNUAIRE',bx+bw/2,by+30,{color:'#f5c518',size:19,w:700});T('= MCP serveur',bx+bw/2,by+47,{color:'#fff',size:12});
+  cut(bx+40,by+80,()=>R(0,0,bw-80,70,6),'#bfe3f5');
+  cut(bx+bw/2,by+128,()=>c.arc(0,0,17,0,7),'#d9a47a');face(bx+bw/2,by+128,on(f,44,60)?'happy':'neutral',f);
+  cut(bx+30,by+148,()=>R(0,0,bw-60,10,3),'#8a5a3b');
+  // le protocole
+  c.save();c.strokeStyle=INK;c.lineWidth=2;c.setLineDash([8,7]);c.beginPath();c.moveTo(270,318);c.lineTo(420,318);c.stroke();c.restore();
+  T('protocole MCP',345,338,{size:15,color:'#fff8ec'});
+  // le MCP client va consulter l'annuaire
+  const mx=kf(f,[[0,190],[14,190],[42,392],[60,392],[86,190]]),moving=on(f,14,42)||on(f,60,86);
+  scaled(mx,298,.8,()=>person({f,walk:moving,color:'#3fa7a0',hair:'#3b2a20',mood:'happy'}));
+  T('MCP client',mx,186,{size:14,w:700});
+  if(f<60)envelope(mx+26,262,{label:f>=14?'quels outils ?':''});
+  else envelope(mx+26,262,{color:'#cdeccd',label:'les fiches 📒'});
+  if(on(f,46,60))bubble(306,112,140,46,'Voici toutes\nnos fiches !',{tx:120,tdx:16,size:14});
+}};
+const FIELDS=[['Nom','#e76f51','chercher_plombier',true],["Quand l'appeler",'#e9a03b',"fuite, panne d'eau, chauffe-eau"],["Ce qu'il faut lui dire",'#4f7cac','ville (obligatoire) · urgence (oui/non)'],["Ce qu'il répond",'#5a9e6f','nom · téléphone · dispo · prix']];
+SCENES.fiche={frames:104,draw(f){
+  table();
+  annuaire(16,160,196,140,1,{bars:true,hl:2});
+  T('MCP serveur',114,328,{size:14,color:'#fff8ec',w:700});
+  // la fiche sort de l'annuaire
+  const s=kf(f,[[0,.15],[6,1]]),cx=kf(f,[[0,160],[6,432]]),cy=kf(f,[[0,215],[6,158]]);
+  c.save();c.strokeStyle='rgba(43,33,24,.4)';c.lineWidth=1.5;c.setLineDash([5,5]);c.beginPath();
+  const ly=160+14+2*((140-24)/6)+9.6;c.moveTo(210,ly);c.lineTo(cx-192*s,cy-134*s);c.moveTo(210,ly);c.lineTo(cx-192*s,cy+134*s);c.stroke();c.restore();
+  scaled(cx,cy,s,()=>{
+    cut(-192,-134,()=>R(0,0,384,268,10),'#fffdf6');
+    cut(-192,-134,()=>R(0,0,384,36,[10,10,0,0]),'#f5c518',{shadow:false});
+    T('📒  Fiche · Plombier',0,-116,{size:19,w:700});
+    FIELDS.forEach(([lab,col,val,mono],k)=>{
+      const st=10+k*16;if(f<st)return;
+      const y=-80+k*54,n=Math.floor((f-st)*4),txt=val.slice(0,n),size=mono?14:15,font=mono?MONO:HAND;
+      c.fillStyle=col;c.beginPath();c.arc(-174,y+2,5,0,7);c.fill();
+      T(lab,-162,y+2,{size:15,w:700,align:'left',color:col});
+      T(txt,-162,y+24,{size,font,align:'left'});
+      if(n<val.length){c.font=`${size}px ${font}`;T('✏️',-156+c.measureText(txt).width,y+14,{size:20})}
+      if(k<3){c.strokeStyle='#e4d6bd';c.lineWidth=1;c.beginPath();c.moveTo(-176,y+40);c.lineTo(176,y+40);c.stroke()}
+    });
+  });
+  if(f>=80){const s2=kf(f,[[80,2],[83,1]]);scaled(552,92,s2,()=>{c.save();c.rotate(-.16);c.strokeStyle='#c0392b';c.lineWidth=4;c.beginPath();R(-62,-20,124,40,8);c.stroke();c.restore();T('le contrat',0,0,{size:22,color:'#c0392b',w:700,rot:-.16})})}
+}};
+const STAGES=[0,20,36,60,80,100];
+SCENES.scenario={frames:132,onFrame(f,slide){const s=STAGES.filter(x=>f>=x).length-1;slide.querySelectorAll('.steps li').forEach((li,i)=>{li.classList.toggle('on',i===s);li.classList.toggle('done',i<s)})},
+draw(f){
+  table();
+  const open=kf(f,[[60,0],[66,1]]),searching=on(f,66,80),line=searching?Math.floor((f-66)/2)%6:-1,hl=f>=76?2:line;
+  annuaire(424,160,196,140,open,{bars:true,hl});
+  if(searching||on(f,76,82)){const step=(140-24)/6,i=f>=76?2:line;loupe(565,160+14+i*step+step/2,18)}
+  scaled(80,300,.92,()=>person({f,mood:f<100?'panic':'happy',arms:f<20?'up':f>=104?'wave':'',hair:'#5b3a29'}));
+  scaled(270,300,1,()=>robot({f,mood:on(f,20,60)?'think':f>=100?'happy':'neutral'}));
+  if(on(f,0,20))bubble(18,34,236,58,"Fuite d'eau ! Un plombier\ndispo ce soir à Lyon ?",{tx:46,tdx:4});
+  T('MCP serveur (annuaire)',522,328,{size:14,color:'#fff8ec',w:700});
+  if(on(f,20,36))bubble(166,34,214,58,"Fiche trouvée dans l'annuaire :\nchercher_plombier 📒",{tx:96,size:14});
+  if(on(f,36,60))envelope(kf(f,[[36,320],[58,520]]),100,{label:'chercher_plombier(\n ville="Lyon", urgence=oui)',mono:true,size:11});
+  if(on(f,60,80))T(['recherche','recherche .','recherche ..','recherche ...'][f%4],520,128,{size:16});
+  if(on(f,80,100))envelope(kf(f,[[80,520],[98,320]]),100,{color:'#cdeccd',label:'3 résultats ✓',size:13});
+  if(f>=100)bubble(120,28,300,64,'Dupont Plomberie · ★ 4,8\ndispo à 19h. Je réserve ?',{tx:150});
+}};
+SCENES.fin={frames:84,draw(f){
+  table();pipe();
+  if(f<36)for(let k=0;k<3;k++){const y=114+((f*14+k*62)%186);if(y<296)drop(151,y)}
+  puddle(150,kf(f,[[0,80],[36,80],[60,40]]));
+  scaled(70,300,1,()=>person({f,mood:f>=36?'happy':'panic',arms:f>=40&&f<56?'wave':'',hair:'#5b3a29'}));
+  const px=kf(f,[[0,720],[20,232]]),fixing=on(f,20,36);
+  cut(px+30,282,()=>R(0,0,40,18,3),'#c0392b');
+  scaled(px,300,1,()=>person({f,walk:f<20,color:'#2f5d8a',overalls:'#24476b',cap:'#c0392b',mood:'happy',arms:fixing?'wave':''}));
+  T('Dupont Plomberie',px,166,{size:13,w:700});
+  if(fixing){cut(176,96,()=>R(-4,-22,8,40,3),'#7d8a93',{rot:f%2?.5:-.2});T(f%2?'tac':'tac !',196,82,{size:15,color:'#c0392b'})}
+  if(on(f,38,58))bubble(30,40,170,46,'Merci MCP ! 🙌',{tx:30,size:17});
+  if(f>=58){const s=kf(f,[[58,.3],[61,1]]);scaled(320,175,s,()=>{cut(-150,-80,()=>R(0,0,300,160,12),'#2b2118');T('FIN',0,-22,{size:60,color:'#f5c518',w:700});T('Model Context Protocol 🔌',0,38,{size:19,color:'#fff8ec'})})}
+}};
+
+/* ---- lecteur ---- */
+class Reel{
+  constructor(cv,id){
+    this.cv=cv;this.id=id;this.sc=SCENES[cv.dataset.scene];this.slide=cv.closest('.slide');this.f=0;
+    cv.width=W*2;cv.height=H*2;this.ctx=cv.getContext('2d');
+    const cap=document.createElement('figcaption');
+    cap.innerHTML='<button class="pp" title="Lecture / pause">❚❚</button><button class="rw" title="Revoir">↺</button><input class="seek" type="range" min="0" step="1" aria-label="Position dans le film"><span class="fc"></span>';
+    cv.after(cap);this.cap=cap;this.fig=cv.parentElement;
+    cap.querySelector('.pp').onclick=()=>this.toggle();cap.querySelector('.rw').onclick=()=>this.play(true);cv.onclick=()=>this.toggle();
+    // barre de lecture : on met en pause pendant qu'on glisse, puis on reprend si le film tournait
+    const seek=this.seek=cap.querySelector('.seek');seek.max=this.sc.frames-1;
+    seek.addEventListener('pointerdown',()=>{this.wasPlaying=this.playing;this.stop()});
+    seek.addEventListener('input',()=>{this.f=+seek.value;this.render()});
+    seek.addEventListener('change',()=>{if(this.wasPlaying)this.play();this.wasPlaying=false});
+    seek.addEventListener('keydown',e=>e.stopPropagation());
+  }
+  render(){
+    c=this.ctx;c.setTransform(2,0,0,2,0,0);seed(this.f*131+this.id*977);
+    c.drawImage(paper,-3+J(1.2),-3+J(1.2),W+6,H+6);
+    this.sc.draw(this.f);
+    c.fillStyle=`rgba(255,235,190,${rnd()*.08})`;c.fillRect(0,0,W,H);c.drawImage(vign,0,0);
+    this.cap.querySelector('.fc').textContent=`${String(this.f+1).padStart(3,'0')} / ${this.sc.frames}`;
+    this.seek.value=this.f;this.seek.style.setProperty('--p',`${this.f/(this.sc.frames-1)*100}%`);
+    this.sc.onFrame?.(this.f,this.slide);
+  }
+  play(reset){if(reset)this.f=0;clearInterval(this.t);this.t=setInterval(()=>{this.f=(this.f+1)%this.sc.frames;this.render()},1000/FPS);this.playing=true;this.fig.classList.remove('paused');this.cap.querySelector('.pp').textContent='❚❚';this.render()}
+  stop(){clearInterval(this.t);this.playing=false;this.fig.classList.add('paused');this.cap.querySelector('.pp').textContent='▶'}
+  toggle(){this.playing?this.stop():this.play()}
+}
+
+/* ---- petite musique (générée en Web Audio, aucun fichier) ---- */
+const Music=(()=>{
+  let ctx,master,timer,next=0,step=0,on=false;
+  const EIGHTH=60/100/2;
+  // Do – La m – Fa – Sol : [basse, accord]
+  const CH=[[36,[60,64,67]],[33,[57,60,64]],[29,[57,60,65]],[31,[59,62,67]]];
+  const MEL=[72,0,76,74,72,0,67,0, 69,0,72,71,69,0,64,0, 65,0,69,67,65,0,72,0, 71,0,67,0,74,72,71,0];
+  const hz=m=>440*2**((m-69)/12);
+  function note(t,m,dur,type,vol){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=hz(m);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(master);o.start(t);o.stop(t+dur+.05);
+  }
+  function shaker(t,vol){
+    const b=ctx.createBuffer(1,ctx.sampleRate*.05,ctx.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+    const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='highpass';f.frequency.value=6000;g.gain.value=vol;s.buffer=b;s.connect(f).connect(g).connect(master);s.start(t);
+  }
+  function schedule(){
+    while(next<ctx.currentTime+.2){
+      const i=step%8,[bass,chord]=CH[Math.floor(step/8)%4],m=MEL[step%32];
+      if(i===0||i===4)note(next,bass+(i===4?7:0),.4,'triangle',.45);
+      if(i===2||i===6)chord.forEach(n=>note(next,n,.25,'triangle',.07));
+      if(m&&Math.floor(step/32)%4!==3){note(next,m,.5,'sine',.4);note(next,m+24,.12,'sine',.06)} // une boucle sur 4 sans mélodie
+      shaker(next,i%2?.04:.08);
+      next+=EIGHTH;step++;
+    }
+  }
+  function start(){
+    ctx??=new AudioContext();
+    if(!master){master=ctx.createGain();master.gain.value=.16;master.connect(ctx.destination)}
+    ctx.resume();next=ctx.currentTime+.05;step=0;clearInterval(timer);timer=setInterval(schedule,50);on=true;
+  }
+  function stop(){clearInterval(timer);on=false;ctx?.suspend()}
+  return{start,stop,get on(){return on},get running(){return ctx?.state==='running'}};
+})();
+let musicWanted=true;
+const musicBtn=document.getElementById('music'),intro=document.getElementById('intro');
+function setMusic(want){
+  musicWanted=want;want?Music.start():Music.stop();
+  musicBtn.textContent=want?'🔊':'🔇';musicBtn.setAttribute('aria-label',want?'Couper la musique':'Remettre la musique');
+}
+musicBtn.onclick=()=>setMusic(!musicWanted);
+// on tente de lancer le son tout de suite ; si le navigateur le bloque, on affiche l'écran de lancement
+function tryAutoplay(){
+  setMusic(true);
+  setTimeout(()=>{if(!Music.running){Music.stop();intro.hidden=false;document.getElementById('launch').focus()}},400);
+}
+function launch(withMusic){intro.hidden=true;setMusic(withMusic);go(cur)}
+document.getElementById('launch').onclick=()=>launch(true);
+document.getElementById('nomusic').onclick=()=>launch(false);
+addEventListener('keydown',e=>{
+  if(intro.hidden)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  launch(!(e.key==='m'||e.key==='M'));
+},true);
+
+/* ---- navigation ---- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0,reels=[];
+function go(i){
+  cur=clamp(i,0,slides.length-1);
+  slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  reels.forEach(r=>r.slide===slides[cur]?r.play(true):r.stop());
+  document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
+  history.replaceState(null,'',`#${cur+1}`);
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+  else if(e.key==='m'||e.key==='M')setMusic(!musicWanted);
+  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
+});
+let tx0=null;addEventListener('touchstart',e=>tx0=e.touches[0].clientX);addEventListener('touchend',e=>{if(tx0==null)return;const d=e.changedTouches[0].clientX-tx0;if(Math.abs(d)>50)go(cur+(d<0?1:-1));tx0=null});
+
+const start=()=>{reels=[...document.querySelectorAll('canvas[data-scene]')].map((cv,i)=>new Reel(cv,i));reels.forEach(r=>{r.render();r.stop()});go((parseInt(location.hash.slice(1))||1)-1);tryAutoplay()};
+Promise.race([document.fonts.load('16px "Patrick Hand"').then(()=>document.fonts.ready),new Promise(r=>setTimeout(r,1500))]).then(start);
+</script>
+</body>
+</html>
