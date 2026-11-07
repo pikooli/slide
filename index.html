@@ -22,6 +22,7 @@ a.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .cover{height:84px;display:grid;place-items:center;font-size:36px}
 .mcp{--accent:#d97757}.mcp .cover{background:#efe4cf}
 .notion{--accent:#1d9e75}.notion .cover{background:#e7f4ee}
+.agentic{--accent:#6d5bd0}.agentic .cover{background:#ece8fb}
 .txt{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
 .tag{font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
 h2{font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
@@ -29,7 +30,7 @@ h2{font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
 .go{margin-top:6px;font-weight:500;font-size:13px;color:var(--accent)}
 footer{margin-top:36px;color:var(--sec);font-size:13px}
 footer a{color:inherit}
-@media (prefers-color-scheme:dark){.mcp .cover{background:#3a3125}.notion .cover{background:#1c3b31}}
+@media (prefers-color-scheme:dark){.mcp .cover{background:#3a3125}.notion .cover{background:#1c3b31}.agentic .cover{background:#2c2745}}
 </style>
 </head>
 <body>
@@ -54,6 +55,15 @@ footer a{color:inherit}
         <span class="tag">7 slides · stop-motion · Hiway</span>
         <h2>The FAQ powered by Notion</h2>
         <p>How the FAQ goes straight from Notion into the app, and what it changes.</p>
+        <span class="go">Open the presentation →</span>
+      </div>
+    </a>
+    <a class="card agentic" href="agentic-ai/index.html">
+      <div class="cover" aria-hidden="true">🤖</div>
+      <div class="txt">
+        <span class="tag">9 slides · stop-motion · music</span>
+        <h2>Agentic AI, explained</h2>
+        <p>An agent that makes its own decisions, uses front and back-end tools, and reaches email, SMS and platforms through MCP.</p>
         <span class="go">Open the presentation →</span>
       </div>
     </a>

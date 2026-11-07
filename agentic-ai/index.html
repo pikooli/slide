@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L'IA agentique, expliquée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Patrick+Hand&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#26251f;--paper:#f7f6f2;--accent:#6d5bd0;--muted:#6b6a63;--line:#e2e0d6}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#1c1713;color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+.deck{position:absolute;inset:0;margin:auto;width:min(100vw,177.78vh);height:min(56.25vw,100vh);container-type:size;background:var(--paper);overflow:hidden}
+.slide{position:absolute;inset:0;display:grid;grid-template-columns:38% 1fr;gap:4cqw;align-items:center;padding:4.5cqw 5cqw 7cqw;opacity:0;visibility:hidden;transition:opacity .35s}
+.slide.active{opacity:1;visibility:visible}
+.kicker{font-family:'Patrick Hand',cursive;font-size:1.9cqw;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8cqw}
+h1{font-size:4.4cqw;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+h2{font-size:3cqw;line-height:1.1;font-weight:800;letter-spacing:-.015em}
+p,li,dd{font-size:1.55cqw;line-height:1.45}
+.lead{margin-top:1.6cqw;color:var(--muted);font-size:1.75cqw}
+.byline{margin-top:1.2cqw;font-size:1cqw;color:var(--muted);opacity:.8}
+.byline a{color:inherit}
+li a{color:var(--accent);font-weight:600}
+.hint{margin-top:2.4cqw;font-family:'Patrick Hand',cursive;font-size:1.5cqw;color:var(--muted)}
+ul{padding-left:1.3em;display:grid;gap:.9cqw;margin-top:1.8cqw}
+li::marker{color:var(--accent)}
+b{font-weight:800}
+code{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:.88em;background:#ebe8de;padding:.05em .3em;border-radius:.3em}
+dl{margin-top:1.6cqw}
+dt{font-weight:800;font-size:1.65cqw;display:flex;align-items:center;gap:.6cqw}
+dt .tag{font-size:1.15cqw;font-weight:800;color:#fff;background:var(--accent);min-width:2.2cqw;text-align:center;padding:.15cqw .7cqw;border-radius:99px}
+dd{margin:.2cqw 0 1.1cqw;color:var(--muted)}
+ol.steps{list-style:none;padding:0;margin-top:1.6cqw;display:grid;gap:.7cqw;counter-reset:s}
+ol.steps li{counter-increment:s;display:flex;gap:.9cqw;align-items:center;opacity:.4;transition:opacity .2s,color .2s}
+ol.steps li::before{content:counter(s);flex:none;width:2.3cqw;height:2.3cqw;border-radius:50%;display:grid;place-items:center;font-size:1.2cqw;font-weight:800;background:var(--line)}
+ol.steps li.done{opacity:.75}
+ol.steps li.on{opacity:1;color:var(--accent);font-weight:700}
+ol.steps li.on::before{background:var(--accent);color:#fff}
+
+/* bobine stop-motion */
+.reel{position:relative;background:#151210;padding:2cqw 1.2cqw 0;border-radius:1cqw;box-shadow:0 1.2cqw 3cqw rgba(40,20,0,.28)}
+.reel::before,.reel::after{content:"";position:absolute;left:1.2cqw;right:1.2cqw;height:.75cqw;background:repeating-linear-gradient(90deg,#3b322a 0 1cqw,transparent 1cqw 2.2cqw);border-radius:2px}
+.reel::before{top:.62cqw}.reel::after{bottom:.62cqw}
+.reel canvas{display:block;width:100%;aspect-ratio:16/9;border-radius:.3cqw;cursor:pointer;background:#efe4cf}
+.reel figcaption{display:flex;align-items:center;gap:.9cqw;color:#e9dcc3;font-family:'Patrick Hand',cursive;font-size:1.35cqw;padding:.7cqw 0 2cqw}
+.reel button{background:none;border:1px solid #6b5a48;color:#e9dcc3;border-radius:99px;width:2.5cqw;height:2.5cqw;font-size:1.1cqw;cursor:pointer;display:grid;place-items:center}
+.reel button:hover{border-color:#e9dcc3}
+.reel .fc{min-width:5.5cqw;text-align:right;font-variant-numeric:tabular-nums}
+.seek{flex:1;-webkit-appearance:none;appearance:none;height:.45cqw;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,0%),#4a3f36 var(--p,0%))}
+.seek::-webkit-slider-thumb{-webkit-appearance:none;width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
+.seek::-moz-range-thumb{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#f6efe2;border:2px solid var(--accent)}
+
+/* conclusion */
+blockquote{margin-top:1.6cqw;font-family:'Patrick Hand',cursive;font-size:1.9cqw;line-height:1.3;border-left:.5cqw solid var(--accent);padding-left:1.4cqw}
+/* nav */
+.nav{position:absolute;left:5cqw;right:5cqw;bottom:2.2cqw;display:flex;align-items:center;gap:1.4cqw;font-family:'Patrick Hand',cursive;font-size:1.4cqw;color:var(--muted)}
+.nav button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:2.6cqw;height:2.6cqw;font-size:1.3cqw;cursor:pointer}
+.nav button:hover{background:#ebe8de}
+/* volume : curseur vertical qui apparaît au survol du bouton son */
+.vol{position:relative;display:flex}
+.volpop{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding-bottom:.7cqw;display:none}
+.vol:hover .volpop,.vol:focus-within .volpop{display:block}
+.volbox{position:relative;width:2.8cqw;height:10cqw;background:#fffdf6;border:1px solid var(--line);border-radius:99px;box-shadow:0 .6cqw 1.6cqw rgba(40,20,0,.18)}
+#volume{position:absolute;left:50%;top:50%;width:7.6cqw;margin:0;transform:translate(-50%,-50%) rotate(-90deg);-webkit-appearance:none;appearance:none;height:.45cqw;border-radius:9px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,60%),var(--line) var(--p,60%))}
+#volume::-webkit-slider-thumb{-webkit-appearance:none;width:1.3cqw;height:1.3cqw;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+#volume::-moz-range-thumb{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+.nav .lang{width:auto;padding:0 .9cqw;font-family:Inter,system-ui,sans-serif;font-size:1cqw;font-weight:800;letter-spacing:.05em}
+body.en .fr,body:not(.en) .en{display:none!important}
+.bar{flex:1;height:.35cqw;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+</style>
+</head>
+<body>
+<main class="deck">
+
+<section class="slide">
+  <div>
+    <p class="kicker">Présentation</p>
+    <h1>L'IA agentique, expliquée simplement</h1>
+    <p class="lead">Un agent ne se contente pas de répondre : il décide, utilise des outils et agit à ta place, de l'interface jusqu'aux services extérieurs.</p>
+    <p class="hint">← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue</p>
+    <p class="byline">Pascal Zhang · <a href="mailto:zhangpas@gmail.com">zhangpas@gmail.com</a> · <a href="https://zhang-pascal.com/">zhang-pascal.com</a></p>
+  </div>
+  <figure class="reel"><canvas data-scene="title"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Chatbot vs agent</p>
+    <h2>Un chatbot répond, un agent agit</h2>
+    <ul>
+      <li><b>Chatbot</b> : il te dit quoi faire. C'est toi qui fais.</li>
+      <li><b>Agent</b> : tu lui donnes un objectif, il fait le travail.</li>
+      <li>Il enchaîne plusieurs actions jusqu'à ce que l'objectif soit atteint.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="chatbot"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Ses propres décisions</p>
+    <h2>Une boucle : observer, décider, agir, vérifier</h2>
+    <ol class="steps">
+      <li><span><b>Observer</b> : il regarde la situation (messages, données, écran).</span></li>
+      <li><span><b>Décider</b> : il choisit lui-même la prochaine action.</span></li>
+      <li><span><b>Agir</b> : il utilise un outil.</span></li>
+      <li><span><b>Vérifier</b> : il contrôle le résultat, et recommence si besoin.</span></li>
+    </ol>
+    <p class="lead">Personne ne lui dicte chaque étape : il s'arrête quand l'objectif est atteint.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="loop"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Ses outils</p>
+    <h2>Des outils côté front, côté back, ou les deux</h2>
+    <dl>
+      <dt><span class="tag">Front</span> agir dans l'interface</dt>
+      <dd>Contrôler l'affichage, ouvrir un formulaire pour demander une info manquante, afficher une fenêtre de confirmation.</dd>
+      <dt><span class="tag" style="background:#3d6fb6">Back</span> agir sur le système</dt>
+      <dd>Interroger la base de données, appeler une API, exécuter du code.</dd>
+    </dl>
+    <p class="lead">Chaque outil a un nom, une description et un contrat : l'agent sait quand et comment s'en servir.</p>
+  </div>
+  <figure class="reel"><canvas data-scene="tools"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Côté front</p>
+    <h2>Il pilote la vue</h2>
+    <ul>
+      <li><b>Affichage</b> : il ouvre un écran, met une info en avant, met la liste à jour.</li>
+      <li><b>Formulaire</b> : il demande à l'utilisateur ce qui lui manque (un créneau, une adresse…).</li>
+      <li><b>Confirmation</b> : il fait valider une action importante avant de la lancer.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="front"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Côté back</p>
+    <h2>Il met à jour la data</h2>
+    <ul>
+      <li>Il lit et modifie la base de données directement.</li>
+      <li>Il appelle les API internes : créer une facture, changer un statut.</li>
+      <li>Plus rapide et plus fiable que de passer par l'écran.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="back"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Services extérieurs</p>
+    <h2>Mail, SMS, plateformes : une seule prise, le MCP</h2>
+    <ul>
+      <li><b>Mail</b> et <b>SMS</b> : prévenir le client, le prestataire, l'équipe.</li>
+      <li><b>API de plateformes</b> : agenda, paiement, CRM, Notion, GitHub…</li>
+      <li>Grâce au <b>standard MCP</b>, chaque service se branche de la même façon : l'agent découvre ses outils tout seul.</li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="mcp"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">Exemple complet</p>
+    <h2>« Organise l'intervention du plombier »</h2>
+    <ol class="steps">
+      <li><span>Le client écrit : « Fuite, dispo ce soir ? »</span></li>
+      <li><span>L'agent décide d'un plan.</span></li>
+      <li><span><b>Back</b> : il vérifie les créneaux et réserve.</span></li>
+      <li><span><b>Front</b> : le tableau de bord se met à jour.</span></li>
+      <li><span><b>MCP</b> : SMS au client, mail au plombier.</span></li>
+      <li><span>Il vérifie que tout est fait : objectif atteint ✓</span></li>
+    </ol>
+  </div>
+  <figure class="reel"><canvas data-scene="example"></canvas></figure>
+</section>
+
+<section class="slide">
+  <div>
+    <p class="kicker">À retenir</p>
+    <h2>En une phrase</h2>
+    <blockquote>Un agent IA décide lui-même de ses actions et les réalise avec des outils : dans l'interface, dans les données, et dans les services extérieurs via le MCP.</blockquote>
+    <ul>
+      <li><b>Il décide</b> : observer → décider → agir → vérifier.</li>
+      <li><b>Il agit</b> : outils front (la vue) et back (la data).</li>
+      <li><b>Il se connecte</b> : mail, SMS, plateformes, avec le standard MCP.</li>
+      <li>Pour aller plus loin : <a href="../mcp/index.html">la présentation MCP</a></li>
+    </ul>
+  </div>
+  <figure class="reel"><canvas data-scene="end"></canvas></figure>
+</section>
+
+<nav class="nav">
+  <button id="prev" aria-label="Précédent">‹</button>
+  <div class="bar"><i id="progress"></i></div>
+  <span id="count">1 / 9</span>
+  <button id="next" aria-label="Suivant">›</button>
+  <div class="vol">
+    <button id="music" aria-label="Couper la musique" title="Musique (M)">🔊</button>
+    <div class="volpop"><div class="volbox"><input id="volume" type="range" min="0" max="100" step="1" value="60" aria-label="Volume"></div></div>
+  </div>
+  <button id="lang" class="lang" title="Langue (L)">EN</button>
+</nav>
+</main>
+
+<script>
+/* ============ moteur stop-motion ============ */
+const W=640,H=360,FPS=8,INK='#2b2118';
+const HAND='"Patrick Hand","Chalkboard SE","Comic Sans MS",cursive';
+const MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
+let c,_s=1;
+const seed=n=>{_s=(Math.abs(n|0)%2147483646)+1};
+const rnd=()=>{_s=_s*16807%2147483647;return(_s-1)/2147483646};
+const J=(a=1)=>(rnd()*2-1)*a;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const on=(f,a,b=1e9)=>f>=a&&f<b;
+function kf(f,k){if(f<=k[0][0])return k[0][1];for(let i=1;i<k.length;i++){const[f1,v1]=k[i],[f0,v0]=k[i-1];if(f<=f1)return v0+(v1-v0)*(f-f0)/(f1-f0)}return k[k.length-1][1]}
+
+function R(x,y,w,h,r=8){c.roundRect(x,y,w,h,r)}
+// découpe en papier : ombre portée + léger tremblement à chaque image
+function cut(x,y,path,fill,o={}){
+  c.save();c.translate(x+J(o.jit??.9),y+J(o.jit??.9));c.rotate((o.rot||0)+J(o.wob??.015));
+  if(o.shadow!==false){c.save();c.translate(3,4);c.fillStyle='rgba(70,45,20,.25)';c.beginPath();path();c.fill();c.restore()}
+  c.fillStyle=fill;c.beginPath();path();c.fill();
+  if(o.stroke!==false){c.lineWidth=o.lw||2;c.strokeStyle=o.stroke||INK;c.lineJoin='round';c.stroke()}
+  c.restore();
+}
+function T(s,x,y,o={}){
+  const size=o.size||16;
+  c.save();c.translate(x+J(.5),y+J(.5));c.rotate((o.rot||0)+J(.01));
+  c.font=`${o.w||400} ${size}px ${o.font||HAND}`;c.fillStyle=o.color||INK;c.textAlign=o.align||'center';c.textBaseline='middle';
+  const L=String(s).split('\n');L.forEach((l,i)=>c.fillText(l,0,(i-(L.length-1)/2)*size*1.18));
+  c.restore();
+}
+function scaled(x,y,s,fn){c.save();c.translate(x,y);c.scale(s,s);fn();c.restore()}
+
+const paper=(()=>{const p=document.createElement('canvas');p.width=W*2;p.height=H*2;const g=p.getContext('2d');
+  g.fillStyle='#efe4cf';g.fillRect(0,0,p.width,p.height);
+  for(let i=0;i<16000;i++){g.fillStyle=`rgba(${Math.random()<.5?'90,60,30':'255,255,255'},${Math.random()*.09})`;g.fillRect(Math.random()*p.width,Math.random()*p.height,1+Math.random()*2,1+Math.random()*2)}
+  return p})();
+const vign=(()=>{const p=document.createElement('canvas');p.width=W;p.height=H;const g=p.getContext('2d');
+  const v=g.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.62);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(40,20,0,.32)');g.fillStyle=v;g.fillRect(0,0,W,H);return p})();
+
+function table(){c.fillStyle='#b98654';c.fillRect(0,300,W,60);c.fillStyle='#9c6d40';c.fillRect(0,300,W,4);
+  c.strokeStyle='rgba(80,40,10,.25)';c.lineWidth=1.5;for(let i=0;i<5;i++){c.beginPath();for(let x=0;x<=W;x+=20)c.lineTo(x,312+i*10+Math.sin(x/40+i)*2);c.stroke()}}
+
+/* ---- personnages et accessoires ---- */
+function face(x,y,mood,f){
+  c.save();c.translate(x+J(.4),y+J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2;c.lineCap='round';
+  const blink=f%23===0;
+  for(const ex of[-7,7]){c.beginPath();if(blink){c.moveTo(ex-3,-3);c.lineTo(ex+3,-3);c.stroke()}else{c.arc(ex,-3,mood==='panic'?3.2:2.4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,3,7,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='panic'){c.ellipse(0,9,4,5.5,0,0,7);c.fill();c.beginPath();c.moveTo(-11,-12);c.lineTo(-4,-9);c.moveTo(11,-12);c.lineTo(4,-9);c.stroke()}
+  else{c.moveTo(-5,8);c.lineTo(5,8);c.stroke()}
+  c.restore();
+}
+// origine = entre les pieds
+function person(o={}){
+  const col=o.color||'#4f7cac',skin=o.skin||'#f1c39b',f=o.f||0,w=o.walk?(f%2?1:-1):0;
+  cut(-10+w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  cut(1-w*3,-30,()=>R(0,0,9,30,3),'#3b3a48');
+  const up=o.arms==='up',wave=o.arms==='wave';
+  const la=up?2.7+(f%2?.25:-.1):.28, ra=up?-2.7-(f%2?.1:-.25):wave?-2.3+(f%2?.45:0):-.28;
+  cut(-16,-74,()=>R(-4,0,9,32,4),col,{rot:la});
+  cut(16,-74,()=>R(-5,0,9,32,4),col,{rot:ra});
+  cut(-19,-80,()=>R(0,0,38,54,13),col);
+  if(o.overalls)cut(-13,-62,()=>R(0,0,26,34,5),o.overalls);
+  cut(0,-100,()=>c.arc(0,0,21,0,Math.PI*2),skin);
+  if(o.hair)cut(0,-106,()=>{c.ellipse(0,0,21,13,0,Math.PI,0);c.closePath()},o.hair);
+  if(o.cap){cut(0,-110,()=>{c.ellipse(0,0,21,12,0,Math.PI,0);c.closePath()},o.cap);cut(2,-114,()=>R(0,0,26,6,3),o.cap)}
+  face(0,-98,o.mood||'neutral',f);
+  if(o.mood==='panic'){const d=(f%3)*4;cut(26,-118+d,()=>{c.arc(0,0,4,0,Math.PI);c.lineTo(0,-9);c.closePath()},'#7cc0ec',{lw:1.2,shadow:false})}
+}
+function robot(o={}){
+  const col=o.color||'#d97757',f=o.f||0,mood=o.mood||'neutral';
+  c.save();c.strokeStyle=INK;c.lineWidth=2.5;c.beginPath();c.moveTo(0,-104);c.lineTo(J(1.5),-120);c.stroke();c.restore();
+  cut(0,-122,()=>c.arc(0,0,6,0,7),'#f4c542');
+  cut(-27,-42,()=>R(-8,0,9,26,4),col,{rot:o.wave?2.4+(f%2?.35:0):.2});
+  cut(27,-42,()=>R(-1,0,9,26,4),col,{rot:-.2});
+  cut(-26,-46,()=>R(0,0,52,38,10),col);
+  cut(-15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(15,-8,()=>c.arc(0,0,8,0,7),'#5a5048');
+  cut(-34,-104,()=>R(0,0,68,58,16),col);
+  cut(-25,-97,()=>R(0,0,50,40,10),'#fff8ec',{shadow:false,lw:1.5});
+  c.save();c.translate(J(.4),J(.4));c.fillStyle=INK;c.strokeStyle=INK;c.lineWidth=2.5;c.lineCap='round';
+  const blink=f%19===0;
+  for(const ex of[-10,10]){c.beginPath();
+    if(blink){c.moveTo(ex-4,-82);c.lineTo(ex+4,-82);c.stroke()}
+    else if(mood==='happy'){c.arc(ex,-80,4.5,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    else if(mood==='think'){c.arc(ex+3,-86,4,0,7);c.fill()}
+    else{c.arc(ex,-82,4,0,7);c.fill()}}
+  c.beginPath();
+  if(mood==='happy'){c.arc(0,-72,6,.15*Math.PI,.85*Math.PI);c.stroke()}
+  else if(mood==='sad'){c.arc(0,-63,6,1.2*Math.PI,1.8*Math.PI);c.stroke()}
+  else if(mood==='think'){c.arc(4,-68,2.5,0,7);c.stroke()}
+  else{c.moveTo(-5,-68);c.lineTo(5,-68);c.stroke()}
+  c.restore();
+  if(o.label)T(o.label,0,-27,{size:14,color:'#fff',w:700});
+}
+function bubble(x,y,w,h,s,o={}){
+  const tx=o.tx??30,td=o.tdx??-8;
+  cut(x,y,()=>{c.moveTo(tx,h-2);c.lineTo(tx+td,h+16);c.lineTo(tx+16,h-2);R(0,0,w,h,14)},o.fill||'#fffdf6');
+  T(s,x+w/2,y+h/2,{size:o.size||15,font:o.font});
+}
+function envelope(x,y,o={}){
+  cut(x-24,y-15,()=>R(0,0,48,30,3),o.color||'#fff3c4');
+  c.save();c.translate(x,y);c.strokeStyle=INK;c.lineWidth=1.5;c.beginPath();c.moveTo(-22,-13);c.lineTo(0,3);c.lineTo(22,-13);c.stroke();c.restore();
+  if(o.label){
+    const size=o.size||12,font=o.mono?MONO:HAND;c.font=`${size}px ${font}`;
+    const L=o.label.split('\n'),lw=Math.max(...L.map(l=>c.measureText(l).width))+16,lh=L.length*size*1.18+10;
+    cut(x-lw/2,y+22,()=>R(0,0,lw,lh,6),'#fffdf6',{lw:1.5});T(o.label,x,y+22+lh/2,{size,font});
+  }
+}
+/* ---- accessoires de l'agent ---- */
+const AGENT='#7c6be0',VIOLET='#6d5bd0',VIOLET_L='#ece8fb',GREEN='#1d9e75',GREEN_L='#e7f4ee',BLUE='#3d6fb6';
+const agent=(x,y,s,o={})=>scaled(x,y,s,()=>robot({color:AGENT,...o}));
+function iconBox(x,y,emoji,name,o={}){
+  const w=o.w||70,h=o.h||58,act=o.active;
+  cut(x-w/2,y-h/2,()=>R(0,0,w,h,10),act?VIOLET_L:'#fffdf6',{stroke:act?VIOLET:INK,lw:act?3:2});
+  T(emoji,x,y-9,{size:22});T(name,x,y+16,{size:13,w:700,color:act?VIOLET:INK});
+}
+function check(x,y){cut(x,y,()=>c.arc(0,0,10,0,7),GREEN,{shadow:false});T('✓',x,y,{size:12,color:'#fff',w:700})}
+function gear(x,y,r,rot,col='#9aa5ad'){
+  c.save();c.translate(x+J(.5),y+J(.5));c.rotate(rot);c.fillStyle=col;c.strokeStyle=INK;c.lineWidth=2;c.beginPath();
+  for(let i=0;i<16;i++){const a=i*Math.PI/8,rr=i%2?r:r*1.3;c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}
+  c.closePath();c.fill();c.stroke();c.fillStyle='#fffdf6';c.beginPath();c.arc(0,0,r*.4,0,7);c.fill();c.stroke();c.restore();
+}
+function browserWin(x,y,w,h,title){
+  cut(x,y,()=>R(0,0,w,h,10),'#ffffff');
+  cut(x,y,()=>R(0,0,w,24,[10,10,0,0]),'#ebe8de',{shadow:false});
+  ['#ff6b5b','#f5c518','#5a9e6f'].forEach((col,i)=>{c.fillStyle=col;c.beginPath();c.arc(x+13+i*11,y+12,3.5,0,7);c.fill()});
+  if(title){cut(x+50,y+5,()=>R(0,0,w-62,14,7),'#fff',{shadow:false,lw:1});T(title,x+58,y+12,{size:10,align:'left',color:'#6b6a63'})}
+}
+function cursor(x,y,down){
+  if(down){c.strokeStyle=VIOLET;c.lineWidth=2.5;c.beginPath();c.arc(x,y,12,0,7);c.stroke()}
+  c.save();c.translate(x+J(.5),y+J(.5)+(down?2:0));c.fillStyle='#fff';c.strokeStyle=INK;c.lineWidth=2;c.lineJoin='round';c.beginPath();
+  c.moveTo(0,0);c.lineTo(0,22);c.lineTo(6,17);c.lineTo(11,27);c.lineTo(15,25);c.lineTo(10,15);c.lineTo(18,15);c.closePath();c.fill();c.stroke();c.restore();
+}
+function dbCyl(x,y,w,h,pulse){
+  c.save();c.translate(x+J(.6),y+J(.6));
+  c.fillStyle='rgba(70,45,20,.22)';c.fillRect(4,14,w,h-14);
+  c.fillStyle=pulse?'#c9e3ff':'#9ecbff';c.strokeStyle=INK;c.lineWidth=2;
+  c.beginPath();c.moveTo(0,10);c.lineTo(0,h-10);c.ellipse(w/2,h-10,w/2,10,0,Math.PI,0,true);c.lineTo(w,10);c.fill();c.stroke();
+  for(let k=1;k<3;k++){c.beginPath();c.ellipse(w/2,10+k*(h-20)/3,w/2,10,0,0,Math.PI);c.stroke()}
+  c.fillStyle='#d8ecff';c.beginPath();c.ellipse(w/2,10,w/2,10,0,0,7);c.fill();c.stroke();
+  c.restore();
+}
+function dataTable(x,y,w,rows,hl){
+  const rh=24;
+  cut(x,y,()=>R(0,0,w,rh*(rows.length+1),8),'#fff');
+  c.fillStyle='#ebe8de';c.fillRect(x+2,y+2,w-4,rh-2);
+  T('job',x+12,y+rh/2,{size:11,w:700,align:'left'});T('status',x+w-12,y+rh/2,{size:11,w:700,align:'right'});
+  rows.forEach(([a,b],i)=>{
+    const ry=y+rh*(i+1);
+    if(hl===i){c.fillStyle=GREEN_L;c.fillRect(x+2,ry+1,w-4,rh-2)}
+    c.strokeStyle='#ebe8de';c.lineWidth=1;c.beginPath();c.moveTo(x+6,ry);c.lineTo(x+w-6,ry);c.stroke();
+    T(a,x+12,ry+rh/2,{size:11,align:'left'});
+    T(b,x+w-12,ry+rh/2,{size:11,align:'right',w:700,color:b==='booked'||b.startsWith('+')?GREEN:'#9a988f'});
+  });
+}
+function clientPhone(x,y,msgs){
+  cut(x,y,()=>R(0,0,96,180,16),'#2b2118');
+  cut(x+6,y+16,()=>R(0,0,84,150,8),'#ffffff',{shadow:false,lw:1});
+  c.fillStyle='#5a5048';c.fillRect(x+34,y+7,28,4);
+  msgs.forEach(([s,me],i)=>{const by=y+28+i*48;cut(me?x+16:x+10,by,()=>R(0,0,70,38,8),me?GREEN_L:'#ebe8de',{shadow:false,lw:1.2});T(s,(me?x+16:x+10)+35,by+19,{size:10})});
+}
+function along(P,t){const seg=P.length-1,u=clamp(t,0,1)*seg,i=Math.min(seg-1,Math.floor(u)),k=u-i;return[P[i][0]+(P[i+1][0]-P[i][0])*k,P[i][1]+(P[i+1][1]-P[i][1])*k]}
+function packet(P,t,col=VIOLET){const[px,py]=along(P,t);cut(px,py,()=>c.arc(0,0,7,0,7),col,{shadow:false})}
+function dashTo(x1,y1,x2,y2){c.save();c.strokeStyle=VIOLET;c.lineWidth=3;c.setLineDash([6,5]);c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.restore()}
+function card(x,y,w,h,col='#fffdf6'){cut(x,y,()=>R(0,0,w,h,10),col)}
+function stamp(x,y,s,col,f,f0,size=26){
+  if(f<f0)return;
+  scaled(x,y,kf(f,[[f0,1.9],[f0+3,1]]),()=>{
+    c.font=`700 ${size}px ${HAND}`;const w=c.measureText(s).width+28;
+    c.save();c.rotate(-.14);c.strokeStyle=col;c.lineWidth=4;c.beginPath();R(-w/2,-size*.8,w,size*1.6,8);c.stroke();c.restore();
+    T(s,0,0,{size,color:col,w:700,rot:-.14});
+  });
+}
+function label(s,x){T(s,x,328,{size:15,color:'#fff8ec',w:700})}
+// surligne l'étape de la liste .steps qui correspond au moment du film
+const syncSteps=stages=>(f,slide)=>{const s=stages.filter(x=>f>=x).length-1;slide.querySelectorAll('.steps li').forEach((li,i)=>{li.classList.toggle('on',i===s);li.classList.toggle('done',i<s)})};
+
+/* ---- les scènes ---- */
+const SCENES={};
+SCENES.title={frames:96,draw(f){
+  table();
+  const gy=kf(f,[[0,-60],[10,28]]);
+  card(150,gy,340,44);T('🎯 Goal: get a plumber here tonight',320,gy+22,{size:15,w:700});
+  const thinking=on(f,12,34);
+  agent(320,300,1.05,{f,mood:thinking?'think':f>=84?'happy':'neutral',wave:f>=86});
+  if(thinking){gear(380,150,12,f*.5);gear(404,126,8,-f*.7,'#c9c2b8')}
+  [['🖥️','UI',120,150,36],['🗄️','Data',120,250,46],['✉️','Mail',520,150,56],['💬','SMS',520,250,66]].forEach(([e,n,x,y,st])=>{
+    if(f<st-4)return;
+    const act=on(f,st,st+10),left=x<320;
+    if(act)dashTo(left?282:358,y<200?200:240,left?x+36:x-36,y);
+    scaled(x,y,kf(f,[[st-4,.3],[st-1,1]]),()=>iconBox(0,0,e,n,{active:act}));
+    if(f>=st+10)check(x+32,y-28);
+  });
+  stamp(320,110,'DONE ✓',GREEN,f,80);
+}};
+SCENES.chatbot={frames:84,draw(f){
+  table();
+  c.save();c.strokeStyle='rgba(43,33,24,.3)';c.setLineDash([6,6]);c.lineWidth=2;c.beginPath();c.moveTo(320,8);c.lineTo(320,296);c.stroke();c.restore();
+  T('CHATBOT',160,18,{size:18,color:'#6b6a63',w:700});T('AGENT',480,18,{size:18,color:VIOLET,w:700});
+  // le chatbot répond, mais rien ne se passe
+  scaled(50,300,.85,()=>person({f,hair:'#5b3a29'}));
+  scaled(240,300,.8,()=>robot({f,color:'#9aa5ad'}));
+  if(on(f,4,22))bubble(14,52,170,40,'Book me a plumber',{tx:30,size:14});
+  if(f>=22)bubble(118,44,192,56,'Here are 3 plumbers\nyou could call 📋',{tx:110,size:14});
+  if(f>=40)T(f%6<3?'…?':'…',50,172,{size:20,color:'#6b6a63',w:700});
+  // l'agent fait le travail
+  scaled(370,300,.85,()=>person({f:f+3,hair:'#5b3a29',mood:f>=60?'happy':'neutral',arms:f>=62?'wave':''}));
+  agent(560,300,.8,{f:f+6,mood:on(f,22,60)?'think':f>=60?'happy':'neutral'});
+  if(on(f,4,22))bubble(334,52,170,40,'Book me a plumber',{tx:30,size:14});
+  if(f>=22){
+    card(400,40,212,104);
+    [['found a plumber',28],['booked 7pm',38],['sent you an SMS',48]].forEach(([s,st],i)=>{
+      const y=64+i*28,ok=f>=st;
+      cut(420,y,()=>c.arc(0,0,8,0,7),ok?GREEN:'#fff',{shadow:false,lw:1.5});if(ok)T('✓',420,y,{size:11,color:'#fff',w:700});
+      T(s,436,y,{size:14,align:'left',color:ok?INK:'#9a988f'});
+    });
+  }
+  stamp(500,170,'DONE ✓',GREEN,f,60,20);
+}};
+const STATIONS=[['👀','Observe',320,72],['🧠','Decide',490,190],['🛠️','Act',320,308],['✅','Check',150,190]];
+const LOOP_TXT=[['1 new message','→ book a plumber','calling a tool…','booked? not yet ↻'],['plumber replied','→ confirm 7pm','sending an SMS…','goal reached ✓']];
+SCENES.loop={frames:140,
+  onFrame(f,slide){const s=f<128?Math.floor(f/16)%4:-1;slide.querySelectorAll('.steps li').forEach((li,i)=>{li.classList.toggle('on',i===s);li.classList.toggle('done',f>=128)})},
+  draw(f){
+  const phase=Math.min(7,Math.floor(f/16)),local=f%16,done=f>=128;
+  c.save();c.strokeStyle='rgba(109,91,208,.45)';c.lineWidth=6;c.setLineDash([2,12]);c.lineCap='round';c.beginPath();c.ellipse(320,190,170,118,0,0,7);c.stroke();c.restore();
+  STATIONS.forEach(([e,n,x,y],k)=>{
+    const act=!done&&phase%4===k;
+    cut(x,y,()=>c.arc(0,0,act?34:30,0,7),act?VIOLET_L:'#fffdf6',{stroke:act?VIOLET:INK,lw:act?3:2});
+    T(e,x,y-5,{size:24});T(n,x,y+17,{size:12,w:700,color:act?VIOLET:INK});
+  });
+  T(`loop ${phase<4?1:2}`,30,24,{size:17,color:VIOLET,w:700,align:'left'});
+  // l'agent fait le tour : il reste sur l'étape puis avance à la suivante
+  const t=done?0:local<12?0:(local-12)/4,ang=(-90+(phase+t)*90)*Math.PI/180;
+  agent(320+Math.cos(ang)*108,190+Math.sin(ang)*58+22,.42,{f,mood:done?'happy':phase%4===1?'think':'neutral'});
+  if(!done){card(232,172,176,36);T(LOOP_TXT[phase<4?0:1][phase%4],320,190,{size:14,w:700})}
+  stamp(320,190,'GOAL ✓',GREEN,f,128,28);
+}};
+const FRONT_T=[['🖼️','update view'],['📝','ask (form)'],['❓','confirm']],BACK_T=[['🗄️','query DB'],['🔌','call API'],['⚙️','run code']];
+SCENES.tools={frames:104,draw(f){
+  table();
+  agent(66,300,.9,{f,mood:f>=70?'happy':'neutral'});
+  cut(118,262,()=>R(0,0,92,38,4),'#c0392b');
+  cut(118,262,()=>R(0,-10,92,10,3),'#a93226',{rot:kf(f,[[4,0],[12,-1.1]])});
+  [['FRONT · the view',30,FRONT_T,VIOLET,VIOLET_L],['BACK · the data',164,BACK_T,BLUE,'#eaf2fb']].forEach(([name,y,tools,col,bg],r)=>{
+    card(256,y,368,120,bg);
+    T(name,274,y+18,{size:16,w:700,align:'left',color:col});
+    tools.forEach(([e,n],i)=>{
+      const st=16+(r*3+i)*8;if(f<st)return;
+      const k=clamp((f-st)/6,0,1),tx=326+i*112,ty=y+72;
+      if(k<1)T(e,164+(tx-164)*k,262+(ty-262)*k-Math.sin(k*Math.PI)*50,{size:26});
+      else iconBox(tx,ty,e,n,{w:96,h:62});
+    });
+  });
+  label('agent',66);
+}};
+SCENES.front={frames:120,draw(f){
+  table();
+  browserWin(28,24,424,264,'app.example.com/jobs');
+  T('Jobs',46,48,{size:16,w:700,align:'left'});
+  const fresh=f>=78,rows=[['Leak · Villeurbanne','done'],['Heater · Lyon 3','waiting']];
+  if(fresh)rows.unshift(['Leak · Lyon 7','booked 7pm']);
+  rows.forEach(([a,b],i)=>{
+    const ry=70+i*38,hot=fresh&&i===0;
+    cut(42,ry,()=>R(0,0,396,32,6),hot&&f<104?GREEN_L:'#fafaf7',{lw:hot&&f<104?2.5:1.2,stroke:hot&&f<104?GREEN:INK,shadow:false});
+    T(a,54,ry+16,{size:13,align:'left'});T(b,426,ry+16,{size:12,align:'right',w:700,color:b==='waiting'?'#9a988f':GREEN});
+  });
+  // l'agent ouvre un formulaire pour demander l'info qui manque
+  if(on(f,12,42)){
+    card(120,96,300,150,'#ffffff');
+    T('📝 Which slot works for you?',138,120,{size:14,w:700,align:'left'});
+    T('asked by the agent',138,140,{size:11,color:VIOLET,align:'left'});
+    ['6pm','7pm','8pm'].forEach((t,i)=>{const pick=t==='7pm'&&f>=32;cut(140+i*90,170,()=>R(0,0,76,30,15),pick?VIOLET:'#fafaf7',{shadow:false,lw:1.5});T(t,178+i*90,185,{size:13,w:700,color:pick?'#fff':INK})});
+  }
+  // puis une fenêtre de confirmation avant de réserver
+  if(on(f,46,76)){
+    card(110,100,320,140,'#ffffff');
+    cut(110,100,()=>R(0,0,320,30,[10,10,0,0]),VIOLET_L,{shadow:false});
+    T('❓ Confirm booking',126,115,{size:14,w:700,align:'left',color:VIOLET});
+    T('Book Dupont Plumbing\ntonight at 7pm?',270,162,{size:14});
+    const ok=on(f,64,67);
+    cut(150,200,()=>R(0,0,110,28,14),'#ebe8de',{shadow:false,lw:1.5});T('Cancel',205,214,{size:13});
+    cut(280,200+(ok?2:0),()=>R(0,0,110,28,14),ok?'#5644b8':VIOLET,{shadow:!ok,lw:1.5});T('Confirm',335,214+(ok?2:0),{size:13,color:'#fff',w:700});
+  }
+  if(on(f,80,104)){cut(170,252,()=>R(0,0,140,26,13),'#2b2118');T('Booked ✓',240,265,{size:13,color:'#fff',w:700})}
+  // la main de l'utilisateur, qui répond à l'agent
+  if(on(f,22,36))T('👆',kf(f,[[22,300],[30,268]]),kf(f,[[22,280],[30,204]])+(on(f,30,33)?3:0),{size:30});
+  if(on(f,54,70))T('👆',kf(f,[[54,420],[62,340]]),kf(f,[[54,290],[62,234]])+(on(f,63,66)?3:0),{size:30});
+  agent(560,300,.9,{f,mood:on(f,8,78)?'think':f>=78?'happy':'neutral'});
+  if(on(f,8,20)||on(f,40,50)||on(f,76,90))dashTo(540,196,456,150);
+  T('FRONT: drives the view',548,36,{size:15,color:VIOLET,w:700});
+}};
+SCENES.back={frames:104,draw(f){
+  table();
+  agent(70,300,.9,{f,mood:f>=92?'happy':on(f,6,90)?'think':'neutral'});
+  dbCyl(250,110,110,150,on(f,30,40)||on(f,72,80));
+  const rows=[['#40 Leak','done'],['#41 Leak',f>=40?'booked':'waiting'],['#42 Heater','waiting']];
+  if(f>=76)rows.push(['#43 Invoice','+ created']);
+  dataTable(410,60,212,rows,on(f,40,60)?1:on(f,76,92)?3:-1);
+  if(on(f,8,30)){const x=kf(f,[[8,140],[28,250]]);card(x-72,86,160,40);T("UPDATE jobs\nSET status='booked'",x+8,106,{size:10,font:MONO})}
+  if(on(f,50,72)){const x=kf(f,[[50,140],[70,250]]);card(x-62,90,130,30);T('POST /invoices',x+3,105,{size:11,font:MONO})}
+  if(on(f,86,102))envelope(kf(f,[[86,250],[100,140]]),100,{color:GREEN_L,label:'OK ✓'});
+  T('BACK: updates the data',200,30,{size:15,color:BLUE,w:700});
+  label('agent',70);label('database',305);
+}};
+const SERVICES=[['✉️','Mail',70],['💬','SMS',170],['🔌','Platform API',270]];
+SCENES.mcp={frames:112,draw(f){
+  table();
+  agent(76,300,.95,{f,mood:f>=96?'happy':'neutral'});
+  c.strokeStyle='#3d3530';c.lineWidth=3;c.beginPath();c.moveTo(112,250);c.lineTo(222,250);c.stroke();
+  cut(222,34,()=>R(0,0,44,256,12),'#2b2118');
+  'MCP'.split('').forEach((l,i)=>T(l,244,118+i*46,{size:26,color:'#f5c518',w:700}));
+  SERVICES.forEach(([e,n,y],i)=>{
+    const st=10+i*28,act=on(f,st,st+24);
+    c.strokeStyle=act?VIOLET:'#3d3530';c.lineWidth=act?4:3;c.beginPath();c.moveTo(266,y);c.lineTo(428,y);c.stroke();
+    iconBox(506,y,e,n,{w:150,h:62,active:act});
+    if(f>=st+20)check(582,y-28);
+    if(on(f,st,st+20))packet([[112,250],[222,250],[266,y],[428,y]],(f-st)/20);
+  });
+  if(f>=96)T('one standard plug for every service',360,18,{size:16,color:VIOLET,w:700});
+  label('agent',76);
+}};
+const EX_STAGES=[0,20,44,68,92,116];
+SCENES.example={frames:156,onFrame:syncSteps(EX_STAGES),draw(f){
+  table();
+  const s=EX_STAGES.filter(x=>f>=x).length-1;
+  const msgs=[];if(f>=4)msgs.push(['Leak! Free\ntonight?',false]);if(f>=104)msgs.push(['Plumber at\n7pm ✓',true]);
+  clientPhone(18,64,msgs);label('client',66);
+  agent(300,300,.9,{f,mood:s===1?'think':s===5?'happy':'neutral',wave:s===5});
+  if(on(f,6,20))packet([[110,120],[270,200]],(f-6)/14);
+  if(s>=1){
+    card(140,22,200,96);T('Plan',156,40,{size:14,w:700,align:'left',color:VIOLET});
+    [['1. check slots',2],['2. book 7pm',2],['3. update + notify',4]].forEach(([t,need],i)=>{
+      const y=62+i*20;T(t,156,y,{size:13,align:'left'});if(s>need||(s===5))check(322,y);
+    });
+  }
+  // back : créneaux et réservation
+  dbCyl(392,38,64,86,s===2&&f%4<2);
+  if(f>=56){cut(400,128,()=>R(0,0,50,18,9),GREEN,{shadow:false,lw:1});T('booked',425,137,{size:10,color:'#fff',w:700})}
+  // front : le tableau de bord
+  browserWin(480,30,146,104,'dashboard');
+  const rows=f>=78?[['Leak · 7pm',true],['Heater',false]]:[['Heater',false]];
+  rows.forEach(([t,g],i)=>{cut(488,62+i*26,()=>R(0,0,130,22,5),g&&f<100?GREEN_L:'#fafaf7',{shadow:false,lw:1});T(t,496,73+i*26,{size:11,align:'left'})});
+  // MCP : mail et SMS
+  iconBox(462,196,'✉️','Mail',{active:s===4});iconBox(574,196,'💬','SMS',{active:s===4});
+  if(f>=108){check(492,170);check(604,170)}
+  if(s===2)dashTo(330,196,392,90);
+  if(s===3)dashTo(330,196,480,90);
+  if(s===4){dashTo(330,210,428,196);packet([[330,220],[462,226]],(f-92)/14);packet([[330,220],[574,226]],(f-96)/14)}
+  stamp(330,160,'DONE ✓',GREEN,f,120);
+}};
+SCENES.end={frames:84,draw(f){
+  table();
+  agent(320,300,1,{f,mood:'happy',wave:f%16<8});
+  [['🖥️','UI'],['🗄️','Data'],['✉️','Mail'],['💬','SMS'],['🔌','API']].forEach(([e,n],i)=>{
+    const a=-Math.PI+i*Math.PI/4;
+    iconBox(320+Math.cos(a)*210,200+Math.sin(a)*120+((f+i*3)%8<4?-3:3),e,n,{w:64,h:54});
+  });
+  if(f>=48)scaled(320,150,kf(f,[[48,.3],[51,1]]),()=>{cut(-140,-56,()=>R(0,0,280,112,12),'#2b2118');T('THE END',0,-16,{size:44,color:'#f5c518',w:700});T('Agentic AI 🤖',0,30,{size:18,color:'#fff8ec'})});
+}};
+
+/* ---- lecteur ---- */
+class Reel{
+  constructor(cv,id){
+    this.cv=cv;this.id=id;this.sc=SCENES[cv.dataset.scene];this.slide=cv.closest('.slide');this.f=0;
+    cv.width=W*2;cv.height=H*2;this.ctx=cv.getContext('2d');
+    const cap=document.createElement('figcaption');
+    cap.innerHTML='<button class="pp" title="Lecture / pause">❚❚</button><button class="rw" title="Revoir">↺</button><input class="seek" type="range" min="0" step="1" aria-label="Position dans le film"><span class="fc"></span>';
+    cv.after(cap);this.cap=cap;this.fig=cv.parentElement;
+    cap.querySelector('.pp').onclick=()=>this.toggle();cap.querySelector('.rw').onclick=()=>this.play(true);cv.onclick=()=>this.toggle();
+    // barre de lecture : on met en pause pendant qu'on glisse, puis on reprend si le film tournait
+    const seek=this.seek=cap.querySelector('.seek');seek.max=this.sc.frames-1;
+    seek.addEventListener('pointerdown',()=>{this.wasPlaying=this.playing;this.stop()});
+    seek.addEventListener('input',()=>{this.f=+seek.value;this.render()});
+    seek.addEventListener('change',()=>{if(this.wasPlaying)this.play();this.wasPlaying=false});
+    seek.addEventListener('keydown',e=>e.stopPropagation());
+  }
+  render(){
+    c=this.ctx;c.setTransform(2,0,0,2,0,0);seed(this.f*131+this.id*977);
+    c.drawImage(paper,-3+J(1.2),-3+J(1.2),W+6,H+6);
+    this.sc.draw(this.f);
+    c.fillStyle=`rgba(255,235,190,${rnd()*.08})`;c.fillRect(0,0,W,H);c.drawImage(vign,0,0);
+    this.cap.querySelector('.fc').textContent=`${String(this.f+1).padStart(3,'0')} / ${this.sc.frames}`;
+    this.seek.value=this.f;this.seek.style.setProperty('--p',`${this.f/(this.sc.frames-1)*100}%`);
+    this.sc.onFrame?.(this.f,this.slide);
+  }
+  play(reset){if(reset)this.f=0;clearInterval(this.t);this.t=setInterval(()=>{this.f=(this.f+1)%this.sc.frames;this.render()},1000/FPS);this.playing=true;this.fig.classList.remove('paused');this.cap.querySelector('.pp').textContent='❚❚';this.render()}
+  stop(){clearInterval(this.t);this.playing=false;this.fig.classList.add('paused');this.cap.querySelector('.pp').textContent='▶'}
+  toggle(){this.playing?this.stop():this.play()}
+}
+
+/* ---- petite musique (générée en Web Audio, aucun fichier) ---- */
+const Music=(()=>{
+  // Musique propre à cette présentation : électro douce, 112 bpm, arpèges en ré mineur
+  let ctx,master,arpBus,bassBus,timer,next=0,step=0,on=false,volume=.6;
+  const gainFor=v=>.28*v;
+  const SIXTEENTH=60/112/4;
+  // Ré m – Si♭ – Fa – Do : [basse, accord]
+  const CH=[[38,[62,65,69]],[34,[58,62,65]],[41,[60,65,69]],[36,[60,64,67]]];
+  const ARP=[0,1,2,1,0,2,1,2];
+  const LEAD={0:74,6:72,8:69,12:72,16:70,22:69,24:65,28:67,32:72,38:74,40:77,44:76,48:76,52:74,56:72,60:71};
+  const hz=m=>440*2**((m-69)/12);
+  function note(t,m,dur,type,vol,dest){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=hz(m);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(dest||master);o.start(t);o.stop(t+dur+.05);
+  }
+  function kick(t,vol){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';
+    o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.1);
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+    o.connect(g).connect(master);o.start(t);o.stop(t+.25);
+  }
+  function noise(t,vol,type,freq,len){
+    const b=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)**2;
+    const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type=type;f.frequency.value=freq;g.gain.value=vol;s.buffer=b;s.connect(f).connect(g).connect(master);s.start(t);
+  }
+  function schedule(){
+    while(next<ctx.currentTime+.2){
+      const i=step%16,loop=Math.floor(step/64)%4,[bass,chord]=CH[Math.floor(step/16)%4],m=LEAD[step%64];
+      note(next,chord[ARP[i%8]]+12,.12,'square',.05,arpBus);
+      if(i%4===0){note(next,bass,.2,'sawtooth',.14,bassBus);kick(next,.42)}
+      if(i%4===2)note(next,bass+12,.1,'sawtooth',.07,bassBus);
+      if(i===4||i===12)noise(next,.12,'bandpass',1500,.08);
+      if(i%2)noise(next,.03,'highpass',8000,.02);
+      if(m&&loop>0){note(next,m,.4,'triangle',.13);note(next,m+12,.12,'sine',.03)} // pas de mélodie sur la première boucle
+      next+=SIXTEENTH;step++;
+    }
+  }
+  function start(){
+    ctx??=new AudioContext();
+    if(!master){
+      master=ctx.createGain();master.gain.value=gainFor(volume);master.connect(ctx.destination);
+      arpBus=ctx.createBiquadFilter();arpBus.type='lowpass';arpBus.frequency.value=1800;arpBus.connect(master);
+      bassBus=ctx.createBiquadFilter();bassBus.type='lowpass';bassBus.frequency.value=520;bassBus.connect(master);
+    }
+    ctx.resume();next=ctx.currentTime+.05;step=0;clearInterval(timer);timer=setInterval(schedule,50);on=true;
+  }
+  function stop(){clearInterval(timer);on=false;ctx?.suspend()}
+  function setVolume(v){volume=v;master?.gain.setTargetAtTime(gainFor(v),ctx.currentTime,.03)}
+  return{start,stop,setVolume,get on(){return on},get running(){return ctx?.state==='running'}};
+})();
+let musicWanted=true;
+const musicBtn=document.getElementById('music');
+function musicLabel(){const v=+volSlider.value;musicBtn.textContent=!musicWanted||v===0?'🔇':v<34?'🔈':v<67?'🔉':'🔊';musicBtn.setAttribute('aria-label',tr(musicWanted?'Couper la musique':'Remettre la musique'))}
+function setMusic(want){musicWanted=want;want?Music.start():Music.stop();musicLabel()}
+musicBtn.onclick=()=>setMusic(!musicWanted);
+// volume : retenu d'une visite à l'autre ; monter le volume remet la musique si elle était coupée
+const volSlider=document.getElementById('volume');
+function applyVolume(){const v=+volSlider.value;volSlider.style.setProperty('--p',v+'%');Music.setVolume(v/100);musicLabel()}
+try{const saved=localStorage.getItem('slides-volume');if(saved!==null)volSlider.value=saved}catch{}
+volSlider.addEventListener('input',()=>{
+  if(!musicWanted&&+volSlider.value>0)setMusic(true);
+  applyVolume();
+  try{localStorage.setItem('slides-volume',volSlider.value)}catch{}
+});
+volSlider.addEventListener('keydown',e=>e.stopPropagation());
+volSlider.style.setProperty('--p',volSlider.value+'%');Music.setVolume(volSlider.value/100); // l'icône est mise à jour par applyLang
+// on lance le son tout de suite ; si le navigateur le bloque, il démarre au premier clic ou à la première touche
+function tryAutoplay(){
+  setMusic(true);
+  setTimeout(()=>{
+    if(Music.running)return;
+    const first=e=>{
+      if(e.target===musicBtn||e.key==='m'||e.key==='M')return;
+      removeEventListener('pointerdown',first,true);removeEventListener('keydown',first,true);
+      if(musicWanted)setMusic(true);
+    };
+    addEventListener('pointerdown',first,true);addEventListener('keydown',first,true);
+  },400);
+}
+
+/* ---- langue FR / EN : le français est dans le HTML, ce dictionnaire donne l'anglais ---- */
+const I18N={
+"L'IA agentique, expliquée": "Agentic AI, explained",
+"Présentation": "Presentation",
+"L'IA agentique, expliquée simplement": "Agentic AI, explained simply",
+"Un agent ne se contente pas de répondre : il décide, utilise des outils et agit à ta place, de l'interface jusqu'aux services extérieurs.": "An agent doesn't just answer: it decides, uses tools and acts for you, from the interface all the way to outside services.",
+"← → pour naviguer · clic sur le film pour pause · F plein écran · M musique · L langue": "← → to navigate · click the film to pause · F fullscreen · M music · L language",
+"Un chatbot répond, un agent agit": "A chatbot answers, an agent acts",
+": il te dit quoi faire. C'est toi qui fais.": ": it tells you what to do. You do it.",
+": tu lui donnes un objectif, il fait le travail.": ": you give it a goal, it does the work.",
+"Il enchaîne plusieurs actions jusqu'à ce que l'objectif soit atteint.": "It chains several actions until the goal is reached.",
+"Ses propres décisions": "Its own decisions",
+"Une boucle : observer, décider, agir, vérifier": "A loop: observe, decide, act, check",
+"Observer": "Observe",
+": il regarde la situation (messages, données, écran).": ": it looks at the situation (messages, data, screen).",
+"Décider": "Decide",
+": il choisit lui-même la prochaine action.": ": it picks the next action by itself.",
+"Agir": "Act",
+": il utilise un outil.": ": it uses a tool.",
+"Vérifier": "Check",
+": il contrôle le résultat, et recommence si besoin.": ": it checks the result, and loops again if needed.",
+"Personne ne lui dicte chaque étape : il s'arrête quand l'objectif est atteint.": "Nobody dictates each step: it stops when the goal is reached.",
+"Ses outils": "Its tools",
+"Des outils côté front, côté back, ou les deux": "Tools on the front end, the back end, or both",
+"agir dans l'interface": "act in the interface",
+"agir sur le système": "act on the system",
+"Interroger la base de données, appeler une API, exécuter du code.": "Query the database, call an API, run code.",
+"Chaque outil a un nom, une description et un contrat : l'agent sait quand et comment s'en servir.": "Each tool has a name, a description and a contract: the agent knows when and how to use it.",
+"Côté front": "Front end",
+"Côté back": "Back end",
+"Il met à jour la data": "It updates the data",
+"Il lit et modifie la base de données directement.": "It reads and edits the database directly.",
+"Il appelle les API internes : créer une facture, changer un statut.": "It calls internal APIs: create an invoice, change a status.",
+"Plus rapide et plus fiable que de passer par l'écran.": "Faster and more reliable than going through the screen.",
+"Services extérieurs": "Outside services",
+"Mail, SMS, plateformes : une seule prise, le MCP": "Email, SMS, platforms: one plug, MCP",
+"Mail": "Email",
+"et": "and",
+": prévenir le client, le prestataire, l'équipe.": ": notify the customer, the contractor, the team.",
+"API de plateformes": "Platform APIs",
+": agenda, paiement, CRM, Notion, GitHub…": ": calendar, payments, CRM, Notion, GitHub…",
+"Grâce au": "Thanks to the",
+"standard MCP": "MCP standard",
+", chaque service se branche de la même façon : l'agent découvre ses outils tout seul.": ", every service plugs in the same way: the agent discovers its tools on its own.",
+"Exemple complet": "Full example",
+"« Organise l'intervention du plombier »": "“Arrange the plumber's visit”",
+"Le client écrit : « Fuite, dispo ce soir ? »": "The customer writes: “Leak, free tonight?”",
+"L'agent décide d'un plan.": "The agent decides on a plan.",
+": il vérifie les créneaux et réserve.": ": it checks the slots and books one.",
+": le tableau de bord se met à jour.": ": the dashboard updates.",
+": SMS au client, mail au plombier.": ": SMS to the customer, email to the plumber.",
+"Il vérifie que tout est fait : objectif atteint ✓": "It checks that everything is done: goal reached ✓",
+"À retenir": "Key takeaway",
+"En une phrase": "In one sentence",
+"Un agent IA décide lui-même de ses actions et les réalise avec des outils : dans l'interface, dans les données, et dans les services extérieurs via le MCP.": "An AI agent decides its own actions and carries them out with tools: in the interface, in the data, and in outside services through MCP.",
+"Il décide": "It decides",
+": observer → décider → agir → vérifier.": ": observe → decide → act → check.",
+"Il agit": "It acts",
+": outils front (la vue) et back (la data).": ": front-end tools (the view) and back-end tools (the data).",
+"Il se connecte": "It connects",
+": mail, SMS, plateformes, avec le standard MCP.": ": email, SMS, platforms, with the MCP standard.",
+"Pour aller plus loin :": "Want more?",
+"la présentation MCP": "see the MCP presentation",
+"Précédent": "Previous",
+"Suivant": "Next",
+"Musique (M)": "Music (M)",
+"Langue (L)": "Language (L)",
+"Couper la musique": "Mute music",
+"Remettre la musique": "Unmute music",
+"Lecture / pause": "Play / pause",
+"Revoir": "Replay",
+"Position dans le film": "Film position",
+"Contrôler l'affichage, ouvrir un formulaire pour demander une info manquante, afficher une fenêtre de confirmation.": "Control what's on screen, open a form to ask for missing info, show a confirmation window.",
+"Il pilote la vue": "It drives the view",
+"Affichage": "Display",
+": il ouvre un écran, met une info en avant, met la liste à jour.": ": it opens a screen, highlights a piece of info, updates the list.",
+"Formulaire": "Form",
+": il demande à l'utilisateur ce qui lui manque (un créneau, une adresse…).": ": it asks the user for what it's missing (a time slot, an address…).",
+"Confirmation": "Confirmation",
+": il fait valider une action importante avant de la lancer.": ": it gets an important action approved before running it."
+};let lang='fr';
+const tr=s=>lang==='en'?(I18N[s]??s):s;
+function applyLang(l){
+  lang=l;document.documentElement.lang=l;document.body.classList.toggle('en',l==='en');
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style,pre')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  for(let n;(n=walker.nextNode());){
+    n.frText??=n.nodeValue;const en=I18N[n.frText.replace(/\s+/g,' ').trim()];
+    // on garde les espaces autour du texte d'origine, sauf devant une ponctuation
+    n.nodeValue=l==='en'&&en!==undefined?(/^[,.;:!?]/.test(en)?'':n.frText.match(/^\s*/)[0])+en+n.frText.match(/\s*$/)[0]:n.frText;
+  }
+  document.querySelectorAll('[aria-label],[title]').forEach(el=>{
+    if(el===musicBtn)return;
+    el.frAttr??={'aria-label':el.getAttribute('aria-label'),title:el.getAttribute('title')};
+    for(const[a,v]of Object.entries(el.frAttr))if(v!==null)el.setAttribute(a,tr(v));
+  });
+  document.frTitle??=document.title;document.title=tr(document.frTitle);
+  langBtn.textContent=l==='en'?'FR':'EN';musicLabel();
+  try{localStorage.setItem('slides-lang',l)}catch{}
+}
+const langBtn=document.getElementById('lang');
+langBtn.onclick=()=>applyLang(lang==='en'?'fr':'en');
+function initialLang(){
+  const q=new URLSearchParams(location.search).get('lang');if(q==='en'||q==='fr')return q;
+  try{const saved=localStorage.getItem('slides-lang');if(saved)return saved}catch{}
+  return navigator.language?.startsWith('fr')?'fr':'en';
+}
+applyLang(initialLang());
+
+/* ---- navigation ---- */
+const slides=[...document.querySelectorAll('.slide')];let cur=0,reels=[];
+function go(i){
+  cur=clamp(i,0,slides.length-1);
+  slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  reels.forEach(r=>r.slide===slides[cur]?r.play(true):r.stop());
+  document.getElementById('count').textContent=`${cur+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=`${(cur+1)/slides.length*100}%`;
+  history.replaceState(null,'',`#${cur+1}`);
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1)}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1)}
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+  else if(e.key==='m'||e.key==='M')setMusic(!musicWanted);
+  else if(e.key==='l'||e.key==='L')applyLang(lang==='en'?'fr':'en');
+  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}
+});
+let tx0=null;addEventListener('touchstart',e=>tx0=e.touches[0].clientX);addEventListener('touchend',e=>{if(tx0==null)return;const d=e.changedTouches[0].clientX-tx0;if(Math.abs(d)>50)go(cur+(d<0?1:-1));tx0=null});
+
+const start=()=>{reels=[...document.querySelectorAll('canvas[data-scene]')].map((cv,i)=>new Reel(cv,i));reels.forEach(r=>{r.render();r.stop()});go((parseInt(location.hash.slice(1))||1)-1);applyLang(lang);tryAutoplay()};
+Promise.race([document.fonts.load('16px "Patrick Hand"').then(()=>document.fonts.ready),new Promise(r=>setTimeout(r,1500))]).then(start);
+</script>
+</body>
+</html>

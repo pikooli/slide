@@ -6,6 +6,7 @@ HTML presentations in French and English, available online via GitHub Pages.
 |---|---|---|
 | **MCP explained with a phone directory**: what an MCP is, illustrated with small stop-motion films (with music). | [Open](https://pikooli.github.io/slide/mcp/) | [`mcp/`](mcp/) |
 | **The FAQ powered by Notion** (Hiway): how the FAQ goes from Notion straight into the app, with stop-motion films. | [Open](https://pikooli.github.io/slide/notion-support/) | [`notion-support/`](notion-support/) |
+| **Agentic AI, explained**: an agent that makes its own decisions, uses front and back-end tools, and reaches email, SMS and platforms through MCP. With stop-motion films and music. | [Open](https://pikooli.github.io/slide/agentic-ai/) | [`agentic-ai/`](agentic-ai/) |
 
 Home page listing all presentations: <https://pikooli.github.io/slide/> ([`index.html`](index.html)).
 
@@ -17,6 +18,9 @@ mcp/
   index.html            the presentation
   README.md             what it covers, controls, notes
 notion-support/
+  index.html
+  README.md
+agentic-ai/
   index.html
   README.md
 ```
